@@ -3,7 +3,7 @@ layout: post
 title: "Static Site Generators in a Single Page Applications World (Part 1)"
 date: 2014-06-18 20:24:56 -0700
 comments: true
-categories: 
+categories: js, node, metalsmith
 ---
 At [work](http://www.extrahop.com) I've been working to get us migrated to a static site generator and have come across some interesting issues with a few of the standard [Grunt](http://gruntjs.com/) tools out there. We chose to go with [Metalsmith](http://www.metalsmith.io/) since it had all the features we needed, and was simple enough to integrate into many workflows. Some people use Metalsmith for their entire site build, but we wanted to use it for building out the core content while leveraging to great Grunt tools available for building JavaScript and SCSS.
 
@@ -30,3 +30,6 @@ Another great tool is [uncss](https://github.com/giakki/uncss) which can be used
 
 ## To Be Continued
 These are some of the tools that have made the biggest impact on our build, but they didn't always get along. Keep your eyes out for Part 2 where I'll talk about some of the tricks we had to do to make these work together and how the filerev plugin fit into the mix.
+
+## Update
+[Part 2](http://blog.boushley.net/blog/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2/) is now out.
