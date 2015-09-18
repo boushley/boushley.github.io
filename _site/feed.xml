@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Coping with Code</title>
+    <description></description>
+    <link>http://blog.boushley.net/</link>
+    <atom:link href="http://blog.boushley.net/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Fri, 18 Sep 2015 14:09:30 -0700</pubDate>
+    <lastBuildDate>Fri, 18 Sep 2015 14:09:30 -0700</lastBuildDate>
+    <generator>Jekyll v2.5.3</generator>
+    
+      <item>
+        <title>Internet Explorer Tracking Protection and Shared CDNs</title>
+        <description>&lt;h2 id=&quot;how-i-got-here&quot;&gt;How I Got Here&lt;/h2&gt;
+&lt;p&gt;At work we recently released an &lt;a href=&quot;https://de.demo.extrahop.com/extrahop/&quot;&gt;online demo&lt;/a&gt; of our product. We were pretty
+happy to get this out and there is an expanded version of the demo for the Enterprise Edition of our product. To see
+this full demo you need to fill out a &lt;a href=&quot;http://www.extrahop.com/enterprise/start/&quot;&gt;form&lt;/a&gt;.  This all went great, until
+about a day after launch we get an email from the CEO of our company talking about he and his wife were unable to use
+the site in IE 11. I was pretty confident we had tested this, but the CEO was saying the site was broke… so I
+started digging in.&lt;/p&gt;
+
+&lt;p&gt;I checked IE 11 in a VM and things worked fine. Well that’s good and bad, at least I don’t look like a total idiot that
+just didn’t test in even a modern browser. The down side is that now I have to figure out why it isn’t working in this
+specific case. Eventually got dev console output in IE 11 and saw this:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+SEC7114: A download in this page was blocked by Tracking Protection.  https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Hmm, so “Tracking Protection” is blocking my jQuery from the Google CDN. What?!&lt;/p&gt;
+
+&lt;h2 id=&quot;shared-cdns&quot;&gt;Shared CDNs&lt;/h2&gt;
+&lt;p&gt;The &lt;a href=&quot;https://developers.google.com/speed/libraries/devguide&quot;&gt;Google Hosted Libraries&lt;/a&gt; is a Shared CDN. Google is hosting 
+a set of popular JavaScript libraries so that multiple sites can use them. They are not the only ones to offer a service 
+like this, &lt;a href=&quot;http://www.asp.net/ajaxlibrary/cdn.ashx&quot;&gt;Microsoft&lt;/a&gt; and &lt;a href=&quot;http://cdnjs.com/&quot;&gt;cdnjs&lt;/a&gt; both have their own 
+versions. Shared CDNs are a great idea, they allow for the benefits of caching on common files across multiple websites. 
+With frameworks like jQuery being so &lt;a href=&quot;http://trends.builtwith.com/javascript/jQuery&quot;&gt;ubiquitous&lt;/a&gt; it’s fairly likely it 
+may be cached before a user ever hits your site.&lt;/p&gt;
+
+&lt;p&gt;Those are the up sides to a shared CDN, but back to the part where IE is “protecting” this browser so well that it can’t
+use jQuery.&lt;/p&gt;
+
+&lt;h2 id=&quot;alright-so-what-is-tracking-protection&quot;&gt;Alright, So What is “Tracking Protection”&lt;/h2&gt;
+&lt;p&gt;After doing some digging it looks like in IE 9 this idea of
+&lt;a href=&quot;http://windows.microsoft.com/en-us/internet-explorer/products/ie-9/features/tracking-protection&quot;&gt;Tracking Protection&lt;/a&gt;
+was introduced. It isn’t turned on by default but after a couple clicks you can have you’re wonderful new Tracking 
+Protection enabled. The default version of this is the “Personalized Tracking Protection List”. The way this works is 
+that when IE detects the same script being loaded on multiple different sites it decides it must be tracking code 
+(because what else would any set of sites want to share? right?) and marks it as probable tracking code.&lt;/p&gt;
+
+&lt;p&gt;To be fair in the default mode this personalized list simply identifies these values and then lets the user decide 
+whether to block or not. However this browser was running in the more aggressive mode where it just auto blocks these
+scripts.  So there you go. IE blocks scripts that are shared by many sites. This is probably pretty effective (initially,
+until real tracking companies with all their money just start sharding across multiple domains) but it also destroys the
+idea of a shared CDN for common code like jQuery.&lt;/p&gt;
+
+&lt;h2 id=&quot;side-note-foil-hat-time&quot;&gt;Side Note: Foil Hat Time&lt;/h2&gt;
+&lt;p&gt;My initial reaction was that certainly since Microsoft has their own shared CDN for jQuery it would be whitelisted. Now 
+I admit this blog post would be more fun if that were the case, but it looks like Microsoft doesn’t have any sites 
+whitelisted. Their shared CDN is just as broken as Google’s shared CDN with Tracking Protection on.
+&lt;img src=&quot;/images/ie-blocking-cdns.png&quot; alt=&quot;IE Blocking Shared CDN Files&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;cdn-fallbacks&quot;&gt;CDN Fallbacks&lt;/h2&gt;
+&lt;p&gt;So, here’s the thing. I knew I should be using a
+&lt;a href=&quot;http://www.hanselman.com/blog/CDNsFailButYourScriptsDontHaveToFallbackFromCDNToLocalJQuery.aspx&quot;&gt;CDN fallback&lt;/a&gt; but
+hadn’t put one in. I planned to have a fallback eventually, but I rationalized that the Google CDN never goes down so 
+what would be the harm in just getting this out and worrying about a fallback later? I let my confidence in Google’s
+infrastructure lull me into a sense of security. Well that was my mistake, Google’s infrastructure was fine, but this
+“Tracking Protection” was blocking the CDN regardless.&lt;/p&gt;
+
+&lt;h3 id=&quot;if-you-use-a-shared-cdn-you-should-be-using-a-fallback-for-your-cdn&quot;&gt;If you use a shared CDN you should be using a fallback for your CDN.&lt;/h3&gt;
+
+&lt;h2 id=&quot;more-protection&quot;&gt;More “Protection”&lt;/h2&gt;
+&lt;p&gt;We got a fallback in place for the Google CDN and now the page works fine with Tracking Protection in full swing. 
+However, there are still problems with the page that we can’t easily resolve. We use &lt;a href=&quot;https://typekit.com/&quot;&gt;Typekit&lt;/a&gt;
+for our fonts and their loading script is blocked by Tracking Protection. In the case of Typekit it’s actually worse, 
+since there isn’t an easy way to fallback. The &lt;a href=&quot;https://www.google.com/fonts&quot;&gt;Google Fonts&lt;/a&gt; also has this same problem. 
+It’s disappointing that IE has this feature so easily accessible that really destroys sharing of resources on the web.&lt;/p&gt;
+</description>
+        <pubDate>Thu, 07 Aug 2014 19:03:52 -0700</pubDate>
+        <link>http://blog.boushley.net/ie/shared%20cdn/2014/08/07/internet-explorer-tracking-protection-and-shared-cdns.html</link>
+        <guid isPermaLink="true">http://blog.boushley.net/ie/shared%20cdn/2014/08/07/internet-explorer-tracking-protection-and-shared-cdns.html</guid>
+        
+        
+        <category>ie</category>
+        
+        <category>shared cdn</category>
+        
+      </item>
+    
+      <item>
+        <title>Node.js Standard Input Oddities</title>
+        <description>&lt;h2 id=&quot;digging-to-find-the-problem&quot;&gt;Digging To Find the Problem&lt;/h2&gt;
+&lt;p&gt;At work recently we were doing our best to automate some of the authoring workflow on our new site (that’s based on 
+the &lt;a href=&quot;http://www.metalsmith.io/&quot;&gt;Metalsmith&lt;/a&gt; static site generator). While doing this we were writing a simple Python 
+script that automated the steps of creating a file, running the build and saving the files.&lt;/p&gt;
+
+&lt;p&gt;We ran into some odd behavior though after running our build and then asking for further input from stdin. After digging 
+into the problem we eventually discovered that it only happened after running one of our tasks that uses 
+&lt;a href=&quot;https://github.com/sindresorhus/grunt-shell&quot;&gt;grunt-shell&lt;/a&gt; although we discovered that setting the &lt;code&gt;stdin&lt;/code&gt; option to 
+&lt;code&gt;false&lt;/code&gt; for the command configuration solved our problem.&lt;/p&gt;
+
+&lt;p&gt;From this my initial thought was that grunt-shell must not be cleaning something up when it uses &lt;code&gt;process.stdin&lt;/code&gt;. So I 
+dug into grunt-shell and discovered that as far as I could tell things were being done correctly. I tried adding some 
+explicit calls to &lt;code&gt;process.stdin.pause();&lt;/code&gt; since there was a call to &lt;code&gt;process.stdin.resume();&lt;/code&gt; but to no avail. Alright, 
+time to boil this down to a simpler repro.&lt;/p&gt;
+
+&lt;h2 id=&quot;boiling-down-to-the-minimal-case&quot;&gt;Boiling Down to the Minimal Case&lt;/h2&gt;
+&lt;p&gt;First I found that if I ran similar commands to what grunt-shell used in a node script (outside of grunt) I could 
+produce similar behavior. So then I got it down to just a couple lines in files, and finally a single command, no files 
+necessary.&lt;/p&gt;
+
+&lt;p&gt;Alright, to get things started lets check out the node version:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+bash-3.2$ node -v
+v0.10.30
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;So the first step on this path is to show that node itself can work in a situation where stdin is needed just fine:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+bash-3.2$ read -p &quot;Works? (y/N) &quot; yn &amp;amp;&amp;amp; node -e &quot;console.log(&#39;hi&#39;);&quot; &amp;amp;&amp;amp; read -p &quot;Works? (y/N) &quot; yn
+Works? (y/N) y
+hi
+Works? (y/N) y
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Yup, we were asked if things worked twice and I could respond “yes” both times. Great, so now lets do something similar 
+to what grunt-shell was doing, using &lt;code&gt;process.stdin.resume()&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+bash-3.2$ read -p &quot;Works? (y/N) &quot; yn &amp;amp;&amp;amp; node -e &quot;process.stdin.resume(); process.stdin.pause();&quot; &amp;amp;&amp;amp; read -p &quot;Works? (y/N) &quot; yn
+Works? (y/N) y
+Works? (y/N) bash: read: read error: 0: Resource temporarily unavailable
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Now that’s some weird behavior. I got to say yes it was working the first time, but the second time bash is telling us that stdin
+(file descriptor 0) is temporarily unavailable. Huh, so are there other things that cause this same behavior with stdin? 
+Maybe if we use the &lt;a href=&quot;http://blog.nodejs.org/2012/12/20/streams2/&quot;&gt;newer stream model&lt;/a&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+bash-3.2$ read -p &quot;Works? (y/N) &quot; yn &amp;amp;&amp;amp; node -e &quot;process.stdin.on(&#39;readable&#39;, function () {}); process.stdin.removeAllListeners(&#39;readable&#39;);&quot; &amp;amp;&amp;amp; read -p &quot;Works? (y/N) &quot; yn
+Works? (y/N) y
+Works? (y/N) bash: read: read error: 0: Resource temporarily unavailable
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Dang, still leaving stdin in a bad state. Now it’s entirely possible I’m just not cleaning something up properly with 
+these so I tried to narrow it down a bit further. Let’s try something that shouldn’t really be intrusive at all:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+bash-3.2$ read -p &quot;Works? (y/N) &quot; yn &amp;amp;&amp;amp; node -e &quot;process.stdin.setEncoding(&#39;utf8&#39;)&quot; &amp;amp;&amp;amp; read -p &quot;Works? (y/N) &quot; yn
+Works? (y/N) y
+Works? (y/N) bash: read: read error: 0: Resource temporarily unavailable
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Ug! Still busted. Interesting. In doing some searching I discovered
+&lt;a href=&quot;https://github.com/joyent/node/issues/7481&quot;&gt;an issue&lt;/a&gt; that some people were seeing odd behaviors from just referencing 
+&lt;code&gt;process.stdin&lt;/code&gt;. I thought “There’s no way just referencing stdin could cause this problem.”, but hey it’s worth a try:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+bash-3.2$ read -p &quot;Works? (y/N) &quot; yn &amp;amp;&amp;amp; node -e &quot;process.stdin;&quot; &amp;amp;&amp;amp; read -p &quot;Works? (y/N) &quot; yn
+Works? (y/N)
+Works? (y/N) bash: read: read error: 0: Resource temporarily unavailable
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;For reals!? Just referencing &lt;code&gt;process.stdin&lt;/code&gt; puts node into a state where stdin won’t be released until things are well 
+and done.&lt;/p&gt;
+
+&lt;h2 id=&quot;nodejs-is-hanging-onto-stdin&quot;&gt;Node.js Is Hanging Onto stdin&lt;/h2&gt;
+&lt;p&gt;Alright, so if you touch &lt;code&gt;process.stdin&lt;/code&gt; in any way node.js will hang onto that file descriptor until the process is 
+completely finished. I can’t seem to find a way to get node to clean things up once stdin has been used. I hope there’s 
+a workaround, but I haven’t found it, if you have a workaround leave a comment. I also did some searching through the
+open issues on the node repository, and couldn’t find anything quite like this, so I opened a
+&lt;a href=&quot;https://github.com/joyent/node/issues/8083&quot;&gt;new issue&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 05 Aug 2014 19:32:59 -0700</pubDate>
+        <link>http://blog.boushley.net/node/2014/08/05/node-dot-js-standard-input-oddities.html</link>
+        <guid isPermaLink="true">http://blog.boushley.net/node/2014/08/05/node-dot-js-standard-input-oddities.html</guid>
+        
+        
+        <category>node</category>
+        
+      </item>
+    
+      <item>
+        <title>ElasticSearch Postman Queries</title>
+        <description>&lt;p&gt;I was experimenting with getting &lt;a href=&quot;http://www.elasticsearch.org/&quot;&gt;ElasticSearch&lt;/a&gt; up and running. In doing so I was using 
+the Chrome &lt;a href=&quot;http://www.getpostman.com/&quot;&gt;Postman&lt;/a&gt; extension to make requests against my local instance of ElasticSearch 
+and experiment with the API.&lt;/p&gt;
+
+&lt;p&gt;Here are the postman request collections that I used. This first one
+&lt;a href=&quot;/resources/postman/ElasticSearchLocalhost.json.postman_collection&quot;&gt;Localhost Specific Request Collection&lt;/a&gt; as the title 
+states is specific to localhost and to port 9200. However I made another collection with the same requests that uses a 
+&lt;a href=&quot;http://www.getpostman.com/docs/environments&quot;&gt;Postman environment&lt;/a&gt; to allow hitting an ElasticSearch cluster not on 
+localhost. This &lt;a href=&quot;/resources/postman/ElasticSearch.json.postman_collection&quot;&gt;Request Collection&lt;/a&gt; allows you to setup a 
+Postman environment with a host and port property that will change where the requests go. For more information about 
+Postman environments see the &lt;a href=&quot;http://www.getpostman.com/docs/environments&quot;&gt;documentation&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;If you want more information on setting up ElasticSearch check out their
+&lt;a href=&quot;http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/intro.html&quot;&gt;Getting Started Guide&lt;/a&gt;. Red Badger has 
+a good blog post on
+&lt;a href=&quot;http://red-badger.com/blog/2013/11/08/getting-started-with-elasticsearch/&quot;&gt;Getting Started with ElasticSearch&lt;/a&gt; if you 
+want more instruction on getting up and running.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 26 Jul 2014 11:48:33 -0700</pubDate>
+        <link>http://blog.boushley.net/elasticsearch/postman/2014/07/26/elasticsearch-postman-queries.html</link>
+        <guid isPermaLink="true">http://blog.boushley.net/elasticsearch/postman/2014/07/26/elasticsearch-postman-queries.html</guid>
+        
+        
+        <category>elasticsearch</category>
+        
+        <category>postman</category>
+        
+      </item>
+    
+      <item>
+        <title>IE Bug with Pseudo Elements and Nested Visibility</title>
+        <description>&lt;p&gt;Recently I was working on adding some styling in an app and I was happy to discover that the
+&lt;a href=&quot;http://www.w3.org/TR/CSS2/visufx.html#visibility&quot;&gt;CSS spec for visibility&lt;/a&gt; allows for nested elements to declare 
+themselves visible.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;The generated box is invisible (fully transparent, nothing is drawn), but still affects layout. Furthermore,
+descendants of the element will be visible if they have &#39;visibility: visible&#39;.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This came in handy, allowing me to make a container hidden until a specific element was focused, but then allowing me to 
+make an icon within that container visible. As I was cleaning this up further I decided the icon really didn’t have any 
+semantic meaning so I shifted it into a CSS after pseudo element.&lt;/p&gt;
+
+&lt;p&gt;Things continued working and I was excited at how cleanly things had turned out. I had nice looking functionality 
+without any javascript, and the html had stayed remarkably clean. That’s when IE struck!&lt;/p&gt;
+
+&lt;p&gt;Turns out that IE supports pseudo elements fine, and it supports nested visibility just fine, but it doesn’t support 
+setting a pseudo element to visible when the element it is being added to is hidden. As far as I can tell from the 
+&lt;a href=&quot;http://www.w3.org/TR/css3-selectors/#pseudo-elements&quot;&gt;multiple&lt;/a&gt;
+&lt;a href=&quot;http://www.w3.org/TR/2009/CR-CSS2-20090908/selector.html#before-and-after&quot;&gt;places&lt;/a&gt;
+&lt;a href=&quot;http://www.w3.org/TR/2009/CR-CSS2-20090908/generate.html&quot;&gt;pseudo elements&lt;/a&gt; are discussed in the specs they should be 
+treated the same as any other child, and it appears that that is how Chrome, FireFox and Opera have interpretted the 
+spec as well. However IE, even through IE 11, does not render this the same. I created
+&lt;a href=&quot;http://jsfiddle.net/boushley/3d97K/4/&quot;&gt;this jsfiddle&lt;/a&gt; which demonstrates the behavior. In Chrome and FireFox you see 
+the BEFORE and AFTER content, but in IE you only see the nested child content. I have some screenshots of this
+&lt;a href=&quot;http://www.browserstack.com/screenshots/61b827cbc479d2c792e148e2065456abcf1a7f0d&quot;&gt;on browserstack&lt;/a&gt;. There do appear to 
+be
+&lt;a href=&quot;http://stackoverflow.com/questions/17530947/ie10-visibilityvisible-on-before-pseudo-element-of-visibilityhidden-eleme&quot;&gt;some other people&lt;/a&gt;
+that have run into this issue as well, but apparently not too many.&lt;/p&gt;
+
+&lt;p&gt;In the end I was able to work around this by making all of the children of my parent container &lt;code&gt;visibility: hidden;&lt;/code&gt; and 
+then specifically making the pseudo element visible. This didn’t clutter my markup since I was working on a &lt;code&gt;&amp;lt;ul&amp;gt;&lt;/code&gt; 
+element already. So in the end I had a reasonable workaround with hiding all the children, but that wouldn’t work in the 
+scenario my jsfiddle outlines, since the text that is a direct child of the container element would not be hidden.&lt;/p&gt;
+
+&lt;p&gt;Oh IE, will you ever be consistent?&lt;/p&gt;
+</description>
+        <pubDate>Wed, 09 Jul 2014 17:22:59 -0700</pubDate>
+        <link>http://blog.boushley.net/css/ie/bugs/2014/07/09/ie-bug-with-pseudo-elements-and-nested-visibility.html</link>
+        <guid isPermaLink="true">http://blog.boushley.net/css/ie/bugs/2014/07/09/ie-bug-with-pseudo-elements-and-nested-visibility.html</guid>
+        
+        
+        <category>css</category>
+        
+        <category>ie</category>
+        
+        <category>bugs</category>
+        
+      </item>
+    
+      <item>
+        <title>Static Site Generators in a Single Page Applications World Part 2</title>
+        <description>&lt;p&gt;In &lt;a href=&quot;http://blog.boushley.net/blog/2014/06/18/static-site-generators-in-a-single-page-applications-world/&quot;&gt;part one&lt;/a&gt; of
+this series I talked about the benefits of Usemin and Uncss, but getting things rolling took some work. Most of the
+problems we were having came from interactions between the plugins we were using, and not necessarily as flaws with the
+tools generally.&lt;/p&gt;
+
+&lt;h2 id=&quot;usemin&quot;&gt;Usemin&lt;/h2&gt;
+&lt;p&gt;The first problem I ran into wasn’t a blocker, but it slowed down our build significantly. Usemin duplicated work when 
+it found multiple blocks defining the same destination file. For most applications this wasn’t a problem. Many 
+applications are single page applications today so this wouldn’t affect them. Many others use a single dynamic page 
+to serve up their pages, again lowering the impact of this issue. However with a static site generator it’s possible to 
+end up with many html files that define the same script include block (in our case we were including this block via a 
+template partial on essentially every page). Luckily a &lt;a href=&quot;https://github.com/yeoman/grunt-usemin/issues/289&quot;&gt;bug&lt;/a&gt; already
+existed for this and a &lt;a href=&quot;https://github.com/yeoman/grunt-usemin/pull/324&quot;&gt;pull request&lt;/a&gt; was even already open to resolve
+it. After reviewing the PR though I decided to create my own &lt;a href=&quot;https://github.com/yeoman/grunt-usemin/pull/382&quot;&gt;PR&lt;/a&gt;
+solving the problem in a slightly different way. The solution was to do some duplication checking to ensure we only 
+added each unique destination file once. My PR landed and the fix is now part of usemin 2.3.0.&lt;/p&gt;
+
+&lt;h2 id=&quot;uncss--usemin&quot;&gt;Uncss + Usemin&lt;/h2&gt;
+&lt;p&gt;The harder problem to figure out was due to an interaction between Uncss and Usemin. Uncss tries to parse the 
+stylesheets it should process off of your page, but because I wanted this to run before usemin ran I needed to supply my 
+own stylesheet via the &lt;code&gt;stylesheets&lt;/code&gt; option. I had something like this:&lt;/p&gt;
+
+&lt;h4 id=&quot;broken-code-functioning-code-below&quot;&gt;Broken Code, functioning code below&lt;/h4&gt;
+&lt;p&gt;&lt;code&gt;js
+grunt.initConfig({
+    uncss: {
+        options: {
+            stylesheets: [&#39;site.css&#39;],
+            htmlroot: &#39;build/public&#39;,
+            csspath: &#39;css/&#39;
+        },
+        file: [{ html: [&#39;**/*.html&#39;] }]
+    }
+    // Usemin declaration left out for brevity
+});
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The problem I was having was that the path to my css files was always different based on where the html file being processed
+was located. I assumed that the &lt;code&gt;stylesheets&lt;/code&gt; option would be resolved relative to the &lt;code&gt;htmlroot&lt;/code&gt; option. For some 
+I kept banging my head against the &lt;code&gt;htmlroot&lt;/code&gt; option and &lt;code&gt;csspath&lt;/code&gt; option trying to figure out how I could make this 
+work when the html files were in different directories. I knew that &lt;code&gt;stylesheets&lt;/code&gt; was being evaluated from where the 
+html file was located, but since &lt;code&gt;csspath&lt;/code&gt; was static the relative path was different per file… And that’s when it hit 
+me, I was making this way harder than it was. All I had to do was make my reference in &lt;code&gt;stylesheets&lt;/code&gt; absolute! So I 
+changed to something like this:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;js
+grunt.initConfig({
+    uncss: {
+        options: {
+            stylesheets: [&#39;/css/site.css&#39;],
+            htmlroot: &#39;build/public&#39;,
+        },
+        file: [{ html: [&#39;**/*.html&#39;] }]
+    }
+    // Usemin declaration left out for brevity
+});
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;With an absolute path to my stylesheet it was now evaluated with &lt;code&gt;htmlroot&lt;/code&gt; as the base and everything was working.&lt;/p&gt;
+
+&lt;h2 id=&quot;filerev&quot;&gt;Filerev&lt;/h2&gt;
+&lt;p&gt;After working through those problems I wasn’t excited to get the last piece of the build working, but the benefits 
+weren’t something I could pass up. So I started on setting up &lt;a href=&quot;https://github.com/yeoman/grunt-filerev&quot;&gt;filerev&lt;/a&gt;. 
+Filerev is a great plugin that does resource versioning, you point it at a folder and it will update each of the files 
+that match the given patterns to contain a part of a hash for the files contents. This makes the files unique meaning 
+that they can be cached forever. I was estatic to find that when I dropped filerev into the build with usemin it just 
+worked. I’m pretty sure I spent more time ensuring that it was working how I expected that it actually took to get 
+setup.&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;There are some great tools for the node build pipeline. They may not fit your usecase exactly to start, but they seem to 
+cover most usecases out of the box while being flexible enough to fit unexpected needs. Until next time.&lt;/p&gt;
+</description>
+        <pubDate>Fri, 27 Jun 2014 20:14:16 -0700</pubDate>
+        <link>http://blog.boushley.net/js/node/metalsmith/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2.html</link>
+        <guid isPermaLink="true">http://blog.boushley.net/js/node/metalsmith/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2.html</guid>
+        
+        
+        <category>js</category>
+        
+        <category>node</category>
+        
+        <category>metalsmith</category>
+        
+      </item>
+    
+      <item>
+        <title>Static Site Generators in a Single Page Applications World (Part 1)</title>
+        <description>&lt;p&gt;At &lt;a href=&quot;http://www.extrahop.com&quot;&gt;work&lt;/a&gt; I’ve been working to get us migrated to a static site generator and have come across some interesting issues with a few of the standard &lt;a href=&quot;http://gruntjs.com/&quot;&gt;Grunt&lt;/a&gt; tools out there. We chose to go with &lt;a href=&quot;http://www.metalsmith.io/&quot;&gt;Metalsmith&lt;/a&gt; since it had all the features we needed, and was simple enough to integrate into many workflows. Some people use Metalsmith for their entire site build, but we wanted to use it for building out the core content while leveraging to great Grunt tools available for building JavaScript and SCSS.&lt;/p&gt;
+
+&lt;h2 id=&quot;usemin&quot;&gt;Usemin&lt;/h2&gt;
+&lt;p&gt;One of the great tools in place with Grunt is &lt;a href=&quot;https://github.com/yeoman/grunt-usemin&quot;&gt;usemin&lt;/a&gt;. This tool essentially does a search and replace inside of your html files for a special html comment syntax. You put something like this in your html:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;html
+&amp;lt;!-- build:js /js/site.js --&amp;gt;
+&amp;lt;script type=&quot;text/javascript&quot; src=&quot;/js/components/buttons.js&quot;&amp;gt;&amp;lt;/script&amp;gt;
+&amp;lt;script type=&quot;text/javascript&quot; src=&quot;/js/foo/bar.js&quot;&amp;gt;&amp;lt;/script&amp;gt;
+&amp;lt;!-- endbuild --&amp;gt;
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;In development usemin doesn’t do anything, letting you debug and write your code based on the original files. Then as part of your staging or production build you run the usemin (and hopefully useminPrepare) tasks and you end up with just this:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;html
+&amp;lt;script type=&quot;text/javascript&quot; src=&quot;/js/site.js&quot;&amp;gt;&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The usemin task on its own will just do the search and replace, but useminPrepare is what makes the combo far more powerful. To make this clear without useminPrepare you would have to define some build steps that would result in &lt;code&gt;/js/site.js&lt;/code&gt; being created and put into the right location. However useminPrepare will dynamically generate configuration for a &lt;a href=&quot;https://github.com/gruntjs/grunt-contrib-concat&quot;&gt;concat&lt;/a&gt; and &lt;a href=&quot;https://github.com/gruntjs/grunt-contrib-uglify&quot;&gt;uglify&lt;/a&gt; build step that result in the defined file (/js/site.js in this case) being created from the sources listed.&lt;/p&gt;
+
+&lt;h2 id=&quot;uncss&quot;&gt;Uncss&lt;/h2&gt;
+&lt;p&gt;Another great tool is &lt;a href=&quot;https://github.com/giakki/uncss&quot;&gt;uncss&lt;/a&gt; which can be used as a &lt;a href=&quot;https://github.com/addyosmani/grunt-uncss&quot;&gt;grunt task&lt;/a&gt; too. This tool will generate a css stylesheet that only contains the styles used on a given set of pages. This is great, because it means I can have my cake and eat it too! I like using frameworks like &lt;a href=&quot;http://getbootstrap.com/&quot;&gt;Bootstrap&lt;/a&gt; or &lt;a href=&quot;http://foundation.zurb.com/&quot;&gt;Foundation&lt;/a&gt; as they’re a great starting point. The downside to using these is that you pull in a lot of unnecessary bulk. This is where uncss shines. If you run uncss over your site you’ll end up with a stylesheet that contains only the styles you’ve used. So in development everything is available to you, and then when you’re ready to deploy anything you haven’t used is pulled out.&lt;/p&gt;
+
+&lt;h2 id=&quot;to-be-continued&quot;&gt;To Be Continued&lt;/h2&gt;
+&lt;p&gt;These are some of the tools that have made the biggest impact on our build, but they didn’t always get along. Keep your eyes out for Part 2 where I’ll talk about some of the tricks we had to do to make these work together and how the filerev plugin fit into the mix.&lt;/p&gt;
+
+&lt;h2 id=&quot;update&quot;&gt;Update&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;http://blog.boushley.net/blog/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2/&quot;&gt;Part 2&lt;/a&gt; is now out.&lt;/p&gt;
+</description>
+        <pubDate>Wed, 18 Jun 2014 20:24:56 -0700</pubDate>
+        <link>http://blog.boushley.net/js/node/metalsmith/2014/06/18/static-site-generators-in-a-single-page-applications-world.html</link>
+        <guid isPermaLink="true">http://blog.boushley.net/js/node/metalsmith/2014/06/18/static-site-generators-in-a-single-page-applications-world.html</guid>
+        
+        
+        <category>js</category>
+        
+        <category>node</category>
+        
+        <category>metalsmith</category>
+        
+      </item>
+    
+      <item>
+        <title>Scraping and Making in Go</title>
+        <description>&lt;p&gt;Over the past week I’ve been experimenting with the &lt;a href=&quot;https://familysearch.org/&quot;&gt;FamilySearch&lt;/a&gt;
+&lt;a href=&quot;https://familysearch.org/developers/docs/api/resources&quot;&gt;API&lt;/a&gt;. I’m interested in building some applications 
+against this API, and since I’ve been learning Go lately I figured this would be a good project to work on. I looked at 
+the community projects that are already around, and there weren’t any in Go (which really was expected). The API and 
+DataTypes are well documented, so I started building out &lt;a href=&quot;https://github.com/boushley/go-family-search&quot;&gt;go-family-search&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-hard-way&quot;&gt;The Hard Way&lt;/h2&gt;
+&lt;p&gt;The first day I knew I needed to start getting the DataTypes written out, so I wrote out the Address data object
+&lt;a href=&quot;https://github.com/boushley/go-family-search/commit/58cbc1b0839abe9dfbe49fcb053ab94a177868db&quot;&gt;by hand&lt;/a&gt; and was
+happy to have gotten started on the project. However the more I thought about what I was attempting to do the
+more I realized manually writing each of those DataTypes didn’t sound like fun. More than that the API docs are so well
+organized and accessible that I could see my writing would be fairly mechanical.&lt;/p&gt;
+
+&lt;h2 id=&quot;scraping-to-the-rescue&quot;&gt;Scraping to the Rescue!&lt;/h2&gt;
+&lt;p&gt;So I started work on writing a scraper that would scrape the DataTypes listing page to find which types I wanted and 
+then for each type scrape the definition from the corresponding page. It took me a couple of nights to work through the 
+process and build out the tool, but then in under a minute all of the DataTypes were created for me. Now the foundation 
+that is needed to build out the API calls is ready to Go (get it?).&lt;/p&gt;
+
+&lt;h3 id=&quot;what-went-well&quot;&gt;What Went Well&lt;/h3&gt;
+&lt;p&gt;Because I was working in Go I didn’t have to spend much time worrying about the formatting of the code. The built in 
+parsers and printers meant that as long as the code was correct, all the spacing and formatting would be taken care of. 
+It also improved my feedback loop since I didn’t have to wait for the tool to finish and then attempt a &lt;code&gt;go build&lt;/code&gt;, the 
+parser would give me errors before the go file was even written to disk.&lt;/p&gt;
+
+&lt;h3 id=&quot;not-so-good&quot;&gt;Not So Good&lt;/h3&gt;
+&lt;p&gt;There were some pieces of this that were more difficult than they needed to be though. Working in newer languages like 
+Go always brings some extra challenges because the tools you want may not be available. In trying to parse information 
+out of an HTML document I ended up using a &lt;a href=&quot;https://godoc.org/code.google.com/p/go.net/html&quot;&gt;nice tool&lt;/a&gt; that does HTML
+tokenizing and parsing, but this is still a lower level tool than most people would want for performing web scraping. 
+The upside to that being that I now know of at least one more project that it would be nice to write in Go, something 
+that gives you a css selector type query system, similar to jQuery or document.querySelectorAll.&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;In the end I still really enjoy writing Go. The language is new and so there are not nearly as many established tools 
+and projects, but the language really feels like it gives you a solid set of foundational tools.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 07 Jun 2014 09:21:35 -0700</pubDate>
+        <link>http://blog.boushley.net/go/familysearch/2014/06/07/scraping-and-making-in-go.html</link>
+        <guid isPermaLink="true">http://blog.boushley.net/go/familysearch/2014/06/07/scraping-and-making-in-go.html</guid>
+        
+        
+        <category>go</category>
+        
+        <category>familysearch</category>
+        
+      </item>
+    
+      <item>
+        <title>Origins of a Programming Language</title>
+        <description>&lt;p&gt;I’ve spent a couple of weeks now exploring &lt;a href=&quot;http://golang.org/&quot;&gt;Go&lt;/a&gt; and I’m really happy. The language has lots of 
+interesting features, including a great standard library. That got me thinking about some of the other languages I’ve
+experimented with and the impact of a language’s origin.&lt;/p&gt;
+
+&lt;p&gt;I’ve experimented with a few languages that were created by programming language connoisseurs, and these usually have 
+some really fascinating features and seem to solve many of the problems you face in development, but they usually lack 
+any sort of community, standard library or tooling. They appear to have the necessary ingredients, but can’t seem to get 
+the traction necessary to get going.&lt;/p&gt;
+
+&lt;p&gt;Another interesting language I’ve experimented with is &lt;a href=&quot;http://kotlin.jetbrains.org/&quot;&gt;Kotlin&lt;/a&gt;. The language has some 
+interesting features (compiling to JVM bytecode and JavaScript is pretty cool), but the most interesting thing to me was 
+the amazing tooling the language had when it came out. Now it makes sense, &lt;a href=&quot;http://www.jetbrains.com/&quot;&gt;JetBrains&lt;/a&gt; makes 
+the best IDEs, so when they make a language you know the tooling is going to be solid.&lt;/p&gt;
+
+&lt;p&gt;Then you have languages like Go that are developed by a powerhouse technology company with the intent to use it 
+internally. The language does a great job of solving problems faced by large or diverse teams, and teams that are trying 
+to get stuff done quickly. One example of problems Go solves is code formatting. Code formatting is always a tension 
+point in teams, and often there is no standard because it’s too contentious to arrive at one. Instead Go has
+&lt;a href=&quot;http://blog.golang.org/go-fmt-your-code&quot;&gt;gofmt&lt;/a&gt; which should be used to ensure that code formatting is consistent, and
+not just across a single team but across the entire language.&lt;/p&gt;
+
+&lt;p&gt;These characteristics of languages make sense when you know the origin of the language, but I hadn’t realized until now
+how important a languages creation myth was to the language itself.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 24 May 2014 20:48:59 -0700</pubDate>
+        <link>http://blog.boushley.net/programming%20languages/go/2014/05/24/programming-language-origins.html</link>
+        <guid isPermaLink="true">http://blog.boushley.net/programming%20languages/go/2014/05/24/programming-language-origins.html</guid>
+        
+        
+        <category>programming languages</category>
+        
+        <category>go</category>
+        
+      </item>
+    
+      <item>
+        <title>Getting Started</title>
+        <description>&lt;h2 id=&quot;getting-started&quot;&gt;Getting Started&lt;/h2&gt;
+
+&lt;p&gt;As I embark on the adventure of blogging once again (yes, I’ve tried this a few times) I can’t help but feel nostalgic 
+about posts I’ve made in the past. But as I consider posting I don’t think I want to start with a bunch links to old 
+blog posts, I’ll save those for a time when I’m running low on time.&lt;/p&gt;
+
+&lt;p&gt;So instead I want to give a brief overview of my career thus far so there can be some background for where my opinions 
+come from.&lt;/p&gt;
+
+&lt;p&gt;I started developing software for money when I was in high school. My family is very entrepreneurial so there were 
+plenty of opportunities for me to help. My first project was helping my cousin, &lt;a href=&quot;http://blog.natebeck.net/&quot;&gt;Nate Beck&lt;/a&gt;, 
+with a few Flash and PHP clients. From there I took on building a few projects on my own from scratch. Both of these 
+were custom PHP applications and I still avoided JavaScript for anything beyond basic input validation / formatting.&lt;/p&gt;
+
+&lt;p&gt;After high school I started my college career at &lt;a href=&quot;http://nau.edu/&quot;&gt;NAU&lt;/a&gt; where I worked in the school’s IT department, 
+and learned that I really preferred programming. I took a break after my first year in college to go on a mission for my 
+church, &lt;a href=&quot;http://www.mormon.org/&quot;&gt;The Church of Jesus Christ of Latter-Day Saints&lt;/a&gt;. After that I returned to NAU for 
+another semester and then my career began to change.&lt;/p&gt;
+
+&lt;p&gt;I moved from Flagstaff, AZ to Tempe, AZ which necessitated a change in jobs, and this time I found a small Web 
+Development shop, called &lt;a href=&quot;http://www.azpixels.com/&quot;&gt;AZ Pixels&lt;/a&gt;, to work at. This is where I began to learn about
+JavaScript, and some of the dangers of PHP. This is also a place where I learned a lot about the importance of a good 
+development workflow.&lt;/p&gt;
+
+&lt;p&gt;After working at AZ Pixels for a year and a half I moved on to a job doing a
+&lt;a href=&quot;http://en.wikipedia.org/wiki/Staff_augmentation&quot;&gt;staff augmentation contract&lt;/a&gt; for Kodak Gallery. This was my first job 
+where JavaScript was my primary language. Up to this point I had been doing web development, but it had been primarily 
+PHP with a bit of JavaScript sprinkled in. When I moved to Kodak Gallery I focused soley on JavaScript and front-end 
+development.&lt;/p&gt;
+
+&lt;p&gt;During the time I was at AZ Pixels and Kodak Gallery I was still working closely with &lt;a href=&quot;http://blog.natebeck.net/&quot;&gt;Nate&lt;/a&gt;
+and helping out on projects from time to time. This work drifted further and further into the realm of Flash and Flex 
+development, and was a nice counter point to the strong JavaScript experience I was getting at Kodak Gallery. During 
+this time I spoke at a couple &lt;a href=&quot;http://www.360flex.com/&quot;&gt;360 Flex&lt;/a&gt; conferences and made my first few real open source 
+contributions.&lt;/p&gt;
+
+&lt;p&gt;After I graduated I wanted to try a change of pace so I moved to Seattle and worked for Microsoft. I was only there for 
+a short time, but in that time I dove into C# and SilverLight. While the platform was already in its death throws at the 
+time it was great to gain exposure to yet another technology for delivering solid interactive experiences on the web.&lt;/p&gt;
+
+&lt;p&gt;Next I tried another big corporation and worked for Amazon Web Services working with JavaScript again starting to define
+their new generation of web consoles. When I first arrived on my team they had just begun porting their old console to 
+GWT so I got to have exposure to another front-end web technology. After finishing that console we decided to write the 
+next conosle in a native JavaScript framework, and decided to use &lt;a href=&quot;https://angularjs.org/&quot;&gt;AngularJS&lt;/a&gt;. We liked Angular
+so much that we decided to rewrite our GWT console in Angular.&lt;/p&gt;
+
+&lt;p&gt;After a year and a half at AWS life brought me to New York City where I found a job at a great &lt;a href=&quot;https://www.betterment.com/&quot;&gt;personal investment&lt;/a&gt;
+startup named &lt;a href=&quot;https://www.betterment.com/&quot;&gt;Betterment&lt;/a&gt;. Betterment was a great place to work, and they had a great
+native JavaScript application using Backbone and Marrionette. I was able to learn quite a bit about those technologies
+and the feel of working at a small company.&lt;/p&gt;
+
+&lt;p&gt;After less than a year life brought me back to Seattle where I’ve found a job at another great startup that does &lt;a href=&quot;http://www.extrahop.com/products/wire-data/&quot;&gt;wire level analytics&lt;/a&gt;
+called &lt;a href=&quot;http://www.extrahop.com/&quot;&gt;ExtraHop&lt;/a&gt;. ExtraHop has some products that are currently being migrated from Flex to
+AngularJS as well as a diverse set of web properties. We’ll have to see where things go with ExtraHop.&lt;/p&gt;
+</description>
+        <pubDate>Fri, 16 May 2014 18:00:37 -0700</pubDate>
+        <link>http://blog.boushley.net/meta/2014/05/16/getting-started.html</link>
+        <guid isPermaLink="true">http://blog.boushley.net/meta/2014/05/16/getting-started.html</guid>
+        
+        
+        <category>meta</category>
+        
+      </item>
+    
+  </channel>
+</rss>

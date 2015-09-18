@@ -1,1 +1,0 @@
-alert('p0wnd');
