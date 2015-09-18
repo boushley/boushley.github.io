@@ -5,9 +5,120 @@
     <description></description>
     <link>http://blog.boushley.net/</link>
     <atom:link href="http://blog.boushley.net/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 18 Sep 2015 14:09:30 -0700</pubDate>
-    <lastBuildDate>Fri, 18 Sep 2015 14:09:30 -0700</lastBuildDate>
-    <generator>Jekyll v2.5.3</generator>
+    <pubDate>Fri, 18 Sep 2015 15:27:19 -0700</pubDate>
+    <lastBuildDate>Fri, 18 Sep 2015 15:27:19 -0700</lastBuildDate>
+    <generator>Jekyll v2.4.0</generator>
+    
+      <item>
+        <title>Fun with visibility and pseudo elements, and then IE</title>
+        <description>&lt;h2 id=&quot;fun-with-visbility&quot;&gt;Fun with Visbility&lt;/h2&gt;
+
+&lt;p&gt;What happens with nesting and visibility?&lt;/p&gt;
+
+&lt;p&gt;By default when you make an element &lt;code&gt;visible: hidden;&lt;/code&gt; it becomes &lt;em&gt;hidden&lt;/em&gt; along with all of
+the elements children. It doesn’t have to stop there though:&lt;/p&gt;
+
+&lt;h3 id=&quot;hidden-parent-and-visible-child&quot;&gt;Hidden Parent and Visible Child&lt;/h3&gt;
+
+&lt;p&gt;If you make an element explicitly visible it shows up, regardless of an ancestor elements visibility setting.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&quot;http://www.w3.org/TR/CSS2/visufx.html#visibility&quot;&gt;specification for visbility&lt;/a&gt; explicitly calls out that (emphasis
+added):&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;The generated box is invisible (fully transparent, nothing is drawn), but still affects layout.
+&lt;strong&gt;Furthermore, descendants of the element will be visible if they have ‘visibility: visible’.&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;So, lets see the basic setup:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;hidden-parent&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;visible-child&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-css&quot; data-lang=&quot;css&quot;&gt;&lt;span class=&quot;nc&quot;&gt;.hidden-parent&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;visibility&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;hidden&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;red&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;200px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;200px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nc&quot;&gt;.visible-child&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;visibility&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;initial&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;blue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You can see the &lt;em&gt;glorious&lt;/em&gt; result here:&lt;/p&gt;
+
+&lt;p data-height=&quot;200&quot; data-theme-id=&quot;0&quot; data-slug-hash=&quot;QjNoZj&quot; data-default-tab=&quot;result&quot; data-user=&quot;boushley&quot; class=&quot;codepen&quot;&gt;See the Pen &lt;a href=&quot;http://codepen.io/boushley/pen/QjNoZj/&quot;&gt;QjNoZj&lt;/a&gt; by Aaron Boushley (&lt;a href=&quot;http://codepen.io/boushley&quot;&gt;@boushley&lt;/a&gt;) on &lt;a href=&quot;http://codepen.io&quot;&gt;CodePen&lt;/a&gt;.&lt;/p&gt;
+&lt;script async=&quot;&quot; src=&quot;//assets.codepen.io/assets/embed/ei.js&quot;&gt;&lt;/script&gt;
+
+&lt;p&gt;This works in any browser you’re likely to work with. It is a cool tool, not something
+I use all that often, but it is a nice tool to have around.&lt;/p&gt;
+
+&lt;h3 id=&quot;hidden-parent-and-pseudo-elements&quot;&gt;Hidden Parent and Pseudo Elements&lt;/h3&gt;
+
+&lt;p&gt;Alright, so what happens if we want to use a &lt;a href=&quot;http://www.w3.org/TR/2011/REC-CSS2-20110607/generate.html#before-after-content&quot;&gt;pseudo element&lt;/a&gt;
+like &lt;code&gt;::before&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;hidden-parent&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-css&quot; data-lang=&quot;css&quot;&gt;&lt;span class=&quot;nc&quot;&gt;.hidden-parent&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;visibility&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;hidden&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;red&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;200px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;200px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nc&quot;&gt;.hidden-parent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;:before&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;visibility&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;visible&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot; &amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;display&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;block&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;blue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And again, the result:&lt;/p&gt;
+
+&lt;p data-height=&quot;200&quot; data-theme-id=&quot;0&quot; data-slug-hash=&quot;WQwmBr&quot; data-default-tab=&quot;result&quot; data-user=&quot;boushley&quot; class=&quot;codepen&quot;&gt;See the Pen &lt;a href=&quot;http://codepen.io/boushley/pen/WQwmBr/&quot;&gt;WQwmBr&lt;/a&gt; by Aaron Boushley (&lt;a href=&quot;http://codepen.io/boushley&quot;&gt;@boushley&lt;/a&gt;) on &lt;a href=&quot;http://codepen.io&quot;&gt;CodePen&lt;/a&gt;.&lt;/p&gt;
+&lt;script async=&quot;&quot; src=&quot;//assets.codepen.io/assets/embed/ei.js&quot;&gt;&lt;/script&gt;
+
+&lt;p&gt;Works great, well for most of you it worked great. Unfortunately if you’re in IE it doesn’t work. I would show you a
+screenshot, but it’s just blank. This holds for all IE versions I’ve been able to test, all the way up through IE 11.&lt;/p&gt;
+
+&lt;p&gt;This one is a bummer, I was really excited when it worked so well in Chrome and FireFox, but IE dashed my hopes.&lt;/p&gt;
+
+&lt;h3 id=&quot;who-cares&quot;&gt;Who Cares?&lt;/h3&gt;
+&lt;p&gt;This may all seem really theoretical, but I discovered this as I was trying to build out an error display. There was an
+error icon, the before pseudo element, and the error contents, the content of the &lt;code&gt;.hidden-parent&lt;/code&gt;. The ask from the
+designers was to have the messages hidden until certain interactions happened. I was able to get this working using just
+html and css without the need for an additional element for the error display.&lt;/p&gt;
+
+&lt;p&gt;You can see a rough version of it here. Works great, but to get IE support you need to avoid using the pseudo element.&lt;/p&gt;
+
+&lt;p data-height=&quot;268&quot; data-theme-id=&quot;0&quot; data-slug-hash=&quot;ZbWPgy&quot; data-default-tab=&quot;result&quot; data-user=&quot;boushley&quot; class=&quot;codepen&quot;&gt;See the Pen &lt;a href=&quot;http://codepen.io/boushley/pen/ZbWPgy/&quot;&gt;ZbWPgy&lt;/a&gt; by Aaron Boushley (&lt;a href=&quot;http://codepen.io/boushley&quot;&gt;@boushley&lt;/a&gt;) on &lt;a href=&quot;http://codepen.io&quot;&gt;CodePen&lt;/a&gt;.&lt;/p&gt;
+&lt;script async=&quot;&quot; src=&quot;//assets.codepen.io/assets/embed/ei.js&quot;&gt;&lt;/script&gt;
+
+</description>
+        <pubDate>Fri, 18 Sep 2015 19:03:52 -0700</pubDate>
+        <link>http://blog.boushley.net/ie/css/2015/09/18/nested-visibility-pseudo-elements-and-ie.html</link>
+        <guid isPermaLink="true">http://blog.boushley.net/ie/css/2015/09/18/nested-visibility-pseudo-elements-and-ie.html</guid>
+        
+        
+        <category>ie</category>
+        
+        <category>css</category>
+        
+      </item>
     
       <item>
         <title>Internet Explorer Tracking Protection and Shared CDNs</title>
@@ -451,7 +562,7 @@ and projects, but the language really feels like it gives you a solid set of fou
         <title>Origins of a Programming Language</title>
         <description>&lt;p&gt;I’ve spent a couple of weeks now exploring &lt;a href=&quot;http://golang.org/&quot;&gt;Go&lt;/a&gt; and I’m really happy. The language has lots of 
 interesting features, including a great standard library. That got me thinking about some of the other languages I’ve
-experimented with and the impact of a language’s origin.&lt;/p&gt;
+experimented with and the impact of a language’s origin. &lt;/p&gt;
 
 &lt;p&gt;I’ve experimented with a few languages that were created by programming language connoisseurs, and these usually have 
 some really fascinating features and seem to solve many of the problems you face in development, but they usually lack 
