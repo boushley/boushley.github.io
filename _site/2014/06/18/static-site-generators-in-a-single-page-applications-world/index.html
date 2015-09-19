@@ -6,11 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Coping with Code</title>
-  <meta name="description" content="">
+  <title>Static Site Generators in a Single Page Applications World (Part 1)</title>
+  <meta name="description" content="At work I’ve been working to get us migrated to a static site generator and have come across some interesting issues with a few of the standard Grunt tools o...">
 
   <link rel="stylesheet" href="/css/main.css">
-  <link rel="canonical" href="http://blog.boushley.net/">
+  <link rel="canonical" href="http://blog.boushley.net/2014/06/18/static-site-generators-in-a-single-page-applications-world/">
   <link rel="alternate" type="application/rss+xml" title="Coping with Code" href="http://blog.boushley.net/feed.xml" />
 </head>
 
@@ -63,103 +63,44 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <div class="page-content">
       <div class="wrapper">
-        <div class="home">
+        <div class="post">
 
-  <h1 class="page-heading">Posts</h1>
+  <header class="post-header">
+    <h1 class="post-title">Static Site Generators in a Single Page Applications World (Part 1)</h1>
+    <p class="post-meta">Jun 18, 2014</p>
+  </header>
 
-  <ul class="post-list">
-    
-      <li>
-        <span class="post-meta">Sep 19, 2015</span>
+  <article class="post-content">
+    <p>At <a href="http://www.extrahop.com">work</a> I’ve been working to get us migrated to a static site generator and have come across some interesting issues with a few of the standard <a href="http://gruntjs.com/">Grunt</a> tools out there. We chose to go with <a href="http://www.metalsmith.io/">Metalsmith</a> since it had all the features we needed, and was simple enough to integrate into many workflows. Some people use Metalsmith for their entire site build, but we wanted to use it for building out the core content while leveraging to great Grunt tools available for building JavaScript and SCSS.</p>
 
-        <h2>
-          <a class="post-link" href="/2015/09/19/ecmascript-6-default-parameters/">Experimenting with ECMAScript 6 Default Function Parameters</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Sep 18, 2015</span>
+<h2 id="usemin">Usemin</h2>
+<p>One of the great tools in place with Grunt is <a href="https://github.com/yeoman/grunt-usemin">usemin</a>. This tool essentially does a search and replace inside of your html files for a special html comment syntax. You put something like this in your html:</p>
 
-        <h2>
-          <a class="post-link" href="/2015/09/18/nested-visibility-pseudo-elements-and-ie/">Fun with visibility and pseudo elements, and then IE</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Aug 7, 2014</span>
+<p><code>html
+&lt;!-- build:js /js/site.js --&gt;
+&lt;script type="text/javascript" src="/js/components/buttons.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="/js/foo/bar.js"&gt;&lt;/script&gt;
+&lt;!-- endbuild --&gt;
+</code></p>
 
-        <h2>
-          <a class="post-link" href="/2014/08/07/internet-explorer-tracking-protection-and-shared-cdns/">Internet Explorer Tracking Protection and Shared CDNs</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Aug 5, 2014</span>
+<p>In development usemin doesn’t do anything, letting you debug and write your code based on the original files. Then as part of your staging or production build you run the usemin (and hopefully useminPrepare) tasks and you end up with just this:</p>
 
-        <h2>
-          <a class="post-link" href="/2014/08/05/node-dot-js-standard-input-oddities/">Node.js Standard Input Oddities</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jul 26, 2014</span>
+<p><code>html
+&lt;script type="text/javascript" src="/js/site.js"&gt;&lt;/script&gt;
+</code></p>
 
-        <h2>
-          <a class="post-link" href="/2014/07/26/elasticsearch-postman-queries/">ElasticSearch Postman Queries</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jul 9, 2014</span>
+<p>The usemin task on its own will just do the search and replace, but useminPrepare is what makes the combo far more powerful. To make this clear without useminPrepare you would have to define some build steps that would result in <code>/js/site.js</code> being created and put into the right location. However useminPrepare will dynamically generate configuration for a <a href="https://github.com/gruntjs/grunt-contrib-concat">concat</a> and <a href="https://github.com/gruntjs/grunt-contrib-uglify">uglify</a> build step that result in the defined file (/js/site.js in this case) being created from the sources listed.</p>
 
-        <h2>
-          <a class="post-link" href="/2014/07/09/ie-bug-with-pseudo-elements-and-nested-visibility/">IE Bug with Pseudo Elements and Nested Visibility</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jun 27, 2014</span>
+<h2 id="uncss">Uncss</h2>
+<p>Another great tool is <a href="https://github.com/giakki/uncss">uncss</a> which can be used as a <a href="https://github.com/addyosmani/grunt-uncss">grunt task</a> too. This tool will generate a css stylesheet that only contains the styles used on a given set of pages. This is great, because it means I can have my cake and eat it too! I like using frameworks like <a href="http://getbootstrap.com/">Bootstrap</a> or <a href="http://foundation.zurb.com/">Foundation</a> as they’re a great starting point. The downside to using these is that you pull in a lot of unnecessary bulk. This is where uncss shines. If you run uncss over your site you’ll end up with a stylesheet that contains only the styles you’ve used. So in development everything is available to you, and then when you’re ready to deploy anything you haven’t used is pulled out.</p>
 
-        <h2>
-          <a class="post-link" href="/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2/">Static Site Generators in a Single Page Applications World Part 2</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jun 18, 2014</span>
+<h2 id="to-be-continued">To Be Continued</h2>
+<p>These are some of the tools that have made the biggest impact on our build, but they didn’t always get along. Keep your eyes out for Part 2 where I’ll talk about some of the tricks we had to do to make these work together and how the filerev plugin fit into the mix.</p>
 
-        <h2>
-          <a class="post-link" href="/2014/06/18/static-site-generators-in-a-single-page-applications-world/">Static Site Generators in a Single Page Applications World (Part 1)</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jun 7, 2014</span>
+<h2 id="update">Update</h2>
+<p><a href="http://blog.boushley.net/blog/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2/">Part 2</a> is now out.</p>
 
-        <h2>
-          <a class="post-link" href="/2014/06/07/scraping-and-making-in-go/">Scraping and Making in Go</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">May 24, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/05/24/programming-language-origins/">Origins of a Programming Language</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">May 16, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/05/16/getting-started/">Getting Started</a>
-        </h2>
-      </li>
-    
-  </ul>
-
-  <p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p>
+  </article>
 
 </div>
 

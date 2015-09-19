@@ -6,11 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Coping with Code</title>
-  <meta name="description" content="">
+  <title>Scraping and Making in Go</title>
+  <meta name="description" content="Over the past week I’ve been experimenting with the FamilySearchAPI. I’m interested in building some applications against this API, and since I’ve been learn...">
 
   <link rel="stylesheet" href="/css/main.css">
-  <link rel="canonical" href="http://blog.boushley.net/">
+  <link rel="canonical" href="http://blog.boushley.net/2014/06/07/scraping-and-making-in-go/">
   <link rel="alternate" type="application/rss+xml" title="Coping with Code" href="http://blog.boushley.net/feed.xml" />
 </head>
 
@@ -63,103 +63,52 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <div class="page-content">
       <div class="wrapper">
-        <div class="home">
+        <div class="post">
 
-  <h1 class="page-heading">Posts</h1>
+  <header class="post-header">
+    <h1 class="post-title">Scraping and Making in Go</h1>
+    <p class="post-meta">Jun 7, 2014</p>
+  </header>
 
-  <ul class="post-list">
-    
-      <li>
-        <span class="post-meta">Sep 19, 2015</span>
+  <article class="post-content">
+    <p>Over the past week I’ve been experimenting with the <a href="https://familysearch.org/">FamilySearch</a>
+<a href="https://familysearch.org/developers/docs/api/resources">API</a>. I’m interested in building some applications 
+against this API, and since I’ve been learning Go lately I figured this would be a good project to work on. I looked at 
+the community projects that are already around, and there weren’t any in Go (which really was expected). The API and 
+DataTypes are well documented, so I started building out <a href="https://github.com/boushley/go-family-search">go-family-search</a>.</p>
 
-        <h2>
-          <a class="post-link" href="/2015/09/19/ecmascript-6-default-parameters/">Experimenting with ECMAScript 6 Default Function Parameters</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Sep 18, 2015</span>
+<h2 id="the-hard-way">The Hard Way</h2>
+<p>The first day I knew I needed to start getting the DataTypes written out, so I wrote out the Address data object
+<a href="https://github.com/boushley/go-family-search/commit/58cbc1b0839abe9dfbe49fcb053ab94a177868db">by hand</a> and was
+happy to have gotten started on the project. However the more I thought about what I was attempting to do the
+more I realized manually writing each of those DataTypes didn’t sound like fun. More than that the API docs are so well
+organized and accessible that I could see my writing would be fairly mechanical.</p>
 
-        <h2>
-          <a class="post-link" href="/2015/09/18/nested-visibility-pseudo-elements-and-ie/">Fun with visibility and pseudo elements, and then IE</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Aug 7, 2014</span>
+<h2 id="scraping-to-the-rescue">Scraping to the Rescue!</h2>
+<p>So I started work on writing a scraper that would scrape the DataTypes listing page to find which types I wanted and 
+then for each type scrape the definition from the corresponding page. It took me a couple of nights to work through the 
+process and build out the tool, but then in under a minute all of the DataTypes were created for me. Now the foundation 
+that is needed to build out the API calls is ready to Go (get it?).</p>
 
-        <h2>
-          <a class="post-link" href="/2014/08/07/internet-explorer-tracking-protection-and-shared-cdns/">Internet Explorer Tracking Protection and Shared CDNs</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Aug 5, 2014</span>
+<h3 id="what-went-well">What Went Well</h3>
+<p>Because I was working in Go I didn’t have to spend much time worrying about the formatting of the code. The built in 
+parsers and printers meant that as long as the code was correct, all the spacing and formatting would be taken care of. 
+It also improved my feedback loop since I didn’t have to wait for the tool to finish and then attempt a <code>go build</code>, the 
+parser would give me errors before the go file was even written to disk.</p>
 
-        <h2>
-          <a class="post-link" href="/2014/08/05/node-dot-js-standard-input-oddities/">Node.js Standard Input Oddities</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jul 26, 2014</span>
+<h3 id="not-so-good">Not So Good</h3>
+<p>There were some pieces of this that were more difficult than they needed to be though. Working in newer languages like 
+Go always brings some extra challenges because the tools you want may not be available. In trying to parse information 
+out of an HTML document I ended up using a <a href="https://godoc.org/code.google.com/p/go.net/html">nice tool</a> that does HTML
+tokenizing and parsing, but this is still a lower level tool than most people would want for performing web scraping. 
+The upside to that being that I now know of at least one more project that it would be nice to write in Go, something 
+that gives you a css selector type query system, similar to jQuery or document.querySelectorAll.</p>
 
-        <h2>
-          <a class="post-link" href="/2014/07/26/elasticsearch-postman-queries/">ElasticSearch Postman Queries</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jul 9, 2014</span>
+<h2 id="conclusion">Conclusion</h2>
+<p>In the end I still really enjoy writing Go. The language is new and so there are not nearly as many established tools 
+and projects, but the language really feels like it gives you a solid set of foundational tools.</p>
 
-        <h2>
-          <a class="post-link" href="/2014/07/09/ie-bug-with-pseudo-elements-and-nested-visibility/">IE Bug with Pseudo Elements and Nested Visibility</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jun 27, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2/">Static Site Generators in a Single Page Applications World Part 2</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jun 18, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/06/18/static-site-generators-in-a-single-page-applications-world/">Static Site Generators in a Single Page Applications World (Part 1)</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jun 7, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/06/07/scraping-and-making-in-go/">Scraping and Making in Go</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">May 24, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/05/24/programming-language-origins/">Origins of a Programming Language</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">May 16, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/05/16/getting-started/">Getting Started</a>
-        </h2>
-      </li>
-    
-  </ul>
-
-  <p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p>
+  </article>
 
 </div>
 

@@ -7,6 +7,7 @@ url: "http://blog.boushley.net" # the base hostname & protocol for your site
 twitter_username: boushley
 github_username:  boushley
 safe: true
+permalink: /:year/:month/:day/:title/
 
 # Build settings
 markdown: kramdown

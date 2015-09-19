@@ -6,11 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Coping with Code</title>
-  <meta name="description" content="">
+  <title>ElasticSearch Postman Queries</title>
+  <meta name="description" content="I was experimenting with getting ElasticSearch up and running. In doing so I was using the Chrome Postman extension to make requests against my local instanc...">
 
   <link rel="stylesheet" href="/css/main.css">
-  <link rel="canonical" href="http://blog.boushley.net/">
+  <link rel="canonical" href="http://blog.boushley.net/2014/07/26/elasticsearch-postman-queries/">
   <link rel="alternate" type="application/rss+xml" title="Coping with Code" href="http://blog.boushley.net/feed.xml" />
 </head>
 
@@ -63,103 +63,33 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <div class="page-content">
       <div class="wrapper">
-        <div class="home">
+        <div class="post">
 
-  <h1 class="page-heading">Posts</h1>
+  <header class="post-header">
+    <h1 class="post-title">ElasticSearch Postman Queries</h1>
+    <p class="post-meta">Jul 26, 2014</p>
+  </header>
 
-  <ul class="post-list">
-    
-      <li>
-        <span class="post-meta">Sep 19, 2015</span>
+  <article class="post-content">
+    <p>I was experimenting with getting <a href="http://www.elasticsearch.org/">ElasticSearch</a> up and running. In doing so I was using 
+the Chrome <a href="http://www.getpostman.com/">Postman</a> extension to make requests against my local instance of ElasticSearch 
+and experiment with the API.</p>
 
-        <h2>
-          <a class="post-link" href="/2015/09/19/ecmascript-6-default-parameters/">Experimenting with ECMAScript 6 Default Function Parameters</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Sep 18, 2015</span>
+<p>Here are the postman request collections that I used. This first one
+<a href="/resources/postman/ElasticSearchLocalhost.json.postman_collection">Localhost Specific Request Collection</a> as the title 
+states is specific to localhost and to port 9200. However I made another collection with the same requests that uses a 
+<a href="http://www.getpostman.com/docs/environments">Postman environment</a> to allow hitting an ElasticSearch cluster not on 
+localhost. This <a href="/resources/postman/ElasticSearch.json.postman_collection">Request Collection</a> allows you to setup a 
+Postman environment with a host and port property that will change where the requests go. For more information about 
+Postman environments see the <a href="http://www.getpostman.com/docs/environments">documentation</a>.</p>
 
-        <h2>
-          <a class="post-link" href="/2015/09/18/nested-visibility-pseudo-elements-and-ie/">Fun with visibility and pseudo elements, and then IE</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Aug 7, 2014</span>
+<p>If you want more information on setting up ElasticSearch check out their
+<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/intro.html">Getting Started Guide</a>. Red Badger has 
+a good blog post on
+<a href="http://red-badger.com/blog/2013/11/08/getting-started-with-elasticsearch/">Getting Started with ElasticSearch</a> if you 
+want more instruction on getting up and running.</p>
 
-        <h2>
-          <a class="post-link" href="/2014/08/07/internet-explorer-tracking-protection-and-shared-cdns/">Internet Explorer Tracking Protection and Shared CDNs</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Aug 5, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/08/05/node-dot-js-standard-input-oddities/">Node.js Standard Input Oddities</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jul 26, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/07/26/elasticsearch-postman-queries/">ElasticSearch Postman Queries</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jul 9, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/07/09/ie-bug-with-pseudo-elements-and-nested-visibility/">IE Bug with Pseudo Elements and Nested Visibility</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jun 27, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2/">Static Site Generators in a Single Page Applications World Part 2</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jun 18, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/06/18/static-site-generators-in-a-single-page-applications-world/">Static Site Generators in a Single Page Applications World (Part 1)</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jun 7, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/06/07/scraping-and-making-in-go/">Scraping and Making in Go</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">May 24, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/05/24/programming-language-origins/">Origins of a Programming Language</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">May 16, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/05/16/getting-started/">Getting Started</a>
-        </h2>
-      </li>
-    
-  </ul>
-
-  <p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p>
+  </article>
 
 </div>
 

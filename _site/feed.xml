@@ -5,9 +5,97 @@
     <description></description>
     <link>http://blog.boushley.net/</link>
     <atom:link href="http://blog.boushley.net/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 18 Sep 2015 15:27:19 -0700</pubDate>
-    <lastBuildDate>Fri, 18 Sep 2015 15:27:19 -0700</lastBuildDate>
+    <pubDate>Fri, 18 Sep 2015 21:14:38 -0700</pubDate>
+    <lastBuildDate>Fri, 18 Sep 2015 21:14:38 -0700</lastBuildDate>
     <generator>Jekyll v2.4.0</generator>
+    
+      <item>
+        <title>Experimenting with ECMAScript 6 Default Function Parameters</title>
+        <description>&lt;h2 id=&quot;where-were-at-now&quot;&gt;Where We’re At Now&lt;/h2&gt;
+
+&lt;p&gt;ECMAScript 6 (ES6) added the ability to specify default parameters to functions, but we’ve
+got a lot of code out there that already handles defaults, heck we even have a colloquially
+named &lt;em&gt;default operator&lt;/em&gt; &lt;code&gt;||&lt;/code&gt;;&lt;/p&gt;
+
+&lt;p&gt;Here’s the way I used to handle default parameters.&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This works in most cases but gets problematic when &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Glossary/Falsy&quot;&gt;falsy values&lt;/a&gt;
+are acceptable inputs. Then you need to explicitly check for &lt;code&gt;undefined&lt;/code&gt; or check &lt;code&gt;arguments.length&lt;/code&gt;;&lt;/p&gt;
+
+&lt;h2 id=&quot;things-get-better&quot;&gt;Things Get Better&lt;/h2&gt;
+
+&lt;p&gt;The new ES6 syntax looks like this:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Much cleaner, especially as you add more parameters with their own defaults. However this just left me wondering about
+how far you could take these default parameters. Are they bound when the function is defined, or when it is called? What
+kind of expressions can you set as the value?&lt;/p&gt;
+
+&lt;h2 id=&quot;es6-today&quot;&gt;ES6 Today&lt;/h2&gt;
+
+&lt;p&gt;So the first place I looked was the &lt;a href=&quot;http://babeljs.io/&quot;&gt;Babel&lt;/a&gt; &lt;a href=&quot;http://babeljs.io/repl/&quot;&gt;REPL&lt;/a&gt;. This is a great tool
+that lets you see how the ES6 version of some code would be written in ES5. This is great for helping you understand how
+things work, especially since the Babel team works extremely hard to produce javascript that follows the specification
+exactly.&lt;/p&gt;
+
+&lt;p&gt;If we drop our simple function into the REPL we get this as the output:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;arguments&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;arguments&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;undefined&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;arguments&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+
+    &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;That looks promising. This answered my first question, parameters are bound when the function is called, not when it is
+defined. That’s super handy. This also handles falsy values porperly, good stuff.&lt;/p&gt;
+
+&lt;p&gt;The way &lt;code&gt;5&lt;/code&gt; is just sitting in there made me think we might be able to do a fairly complex expression here. So I tried
+popping a function call or variable assignment in there. Things worked great. You  can call a function, you can set the
+parameter to another variable, heck you can set a later parameter to the value of an earlier parameter:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;side-note&quot;&gt;Side Note&lt;/h3&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Babel has an additional mode called &lt;code&gt;High Compliancy&lt;/code&gt;. This adds some extra noise to the above example to handle 
+temporal dead zones. Luckily we don’t have to worry about that with these examples.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;I also noticed that FireFox already has default parameters implemented. So I opened up FireFox’s developer console and
+did similar tests. Everything worked just as you would expect based on the Babel code.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-spec&quot;&gt;The Spec&lt;/h2&gt;
+
+&lt;p&gt;Just to be sure there wasn’t a bug in here I went ahead and dove into the &lt;a href=&quot;http://www.ecma-international.org/ecma-262/6.0/#sec-function-definitions&quot;&gt;ES6 Spec for Function
+Definitions&lt;/a&gt;. It looks like FireFox and
+Babel got it right. Default parameters are late binding and allow for basically any expression.&lt;/p&gt;
+
+&lt;p&gt;I’m glad we have Babel so we can use these great features now.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 19 Sep 2015 19:03:52 -0700</pubDate>
+        <link>http://blog.boushley.net/2015/09/19/ecmascript-6-default-parameters/</link>
+        <guid isPermaLink="true">http://blog.boushley.net/2015/09/19/ecmascript-6-default-parameters/</guid>
+        
+        
+        <category>es6</category>
+        
+        <category>js</category>
+        
+        <category>experiments</category>
+        
+        <category>spec diving</category>
+        
+      </item>
     
       <item>
         <title>Fun with visibility and pseudo elements, and then IE</title>
@@ -110,8 +198,8 @@ html and css without the need for an additional element for the error display.&l
 
 </description>
         <pubDate>Fri, 18 Sep 2015 19:03:52 -0700</pubDate>
-        <link>http://blog.boushley.net/ie/css/2015/09/18/nested-visibility-pseudo-elements-and-ie.html</link>
-        <guid isPermaLink="true">http://blog.boushley.net/ie/css/2015/09/18/nested-visibility-pseudo-elements-and-ie.html</guid>
+        <link>http://blog.boushley.net/2015/09/18/nested-visibility-pseudo-elements-and-ie/</link>
+        <guid isPermaLink="true">http://blog.boushley.net/2015/09/18/nested-visibility-pseudo-elements-and-ie/</guid>
         
         
         <category>ie</category>
@@ -189,8 +277,8 @@ since there isn’t an easy way to fallback. The &lt;a href=&quot;https://www.go
 It’s disappointing that IE has this feature so easily accessible that really destroys sharing of resources on the web.&lt;/p&gt;
 </description>
         <pubDate>Thu, 07 Aug 2014 19:03:52 -0700</pubDate>
-        <link>http://blog.boushley.net/ie/shared%20cdn/2014/08/07/internet-explorer-tracking-protection-and-shared-cdns.html</link>
-        <guid isPermaLink="true">http://blog.boushley.net/ie/shared%20cdn/2014/08/07/internet-explorer-tracking-protection-and-shared-cdns.html</guid>
+        <link>http://blog.boushley.net/2014/08/07/internet-explorer-tracking-protection-and-shared-cdns/</link>
+        <guid isPermaLink="true">http://blog.boushley.net/2014/08/07/internet-explorer-tracking-protection-and-shared-cdns/</guid>
         
         
         <category>ie</category>
@@ -286,8 +374,8 @@ open issues on the node repository, and couldn’t find anything quite like this
 &lt;a href=&quot;https://github.com/joyent/node/issues/8083&quot;&gt;new issue&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Tue, 05 Aug 2014 19:32:59 -0700</pubDate>
-        <link>http://blog.boushley.net/node/2014/08/05/node-dot-js-standard-input-oddities.html</link>
-        <guid isPermaLink="true">http://blog.boushley.net/node/2014/08/05/node-dot-js-standard-input-oddities.html</guid>
+        <link>http://blog.boushley.net/2014/08/05/node-dot-js-standard-input-oddities/</link>
+        <guid isPermaLink="true">http://blog.boushley.net/2014/08/05/node-dot-js-standard-input-oddities/</guid>
         
         
         <category>node</category>
@@ -315,8 +403,8 @@ a good blog post on
 want more instruction on getting up and running.&lt;/p&gt;
 </description>
         <pubDate>Sat, 26 Jul 2014 11:48:33 -0700</pubDate>
-        <link>http://blog.boushley.net/elasticsearch/postman/2014/07/26/elasticsearch-postman-queries.html</link>
-        <guid isPermaLink="true">http://blog.boushley.net/elasticsearch/postman/2014/07/26/elasticsearch-postman-queries.html</guid>
+        <link>http://blog.boushley.net/2014/07/26/elasticsearch-postman-queries/</link>
+        <guid isPermaLink="true">http://blog.boushley.net/2014/07/26/elasticsearch-postman-queries/</guid>
         
         
         <category>elasticsearch</category>
@@ -364,8 +452,8 @@ scenario my jsfiddle outlines, since the text that is a direct child of the cont
 &lt;p&gt;Oh IE, will you ever be consistent?&lt;/p&gt;
 </description>
         <pubDate>Wed, 09 Jul 2014 17:22:59 -0700</pubDate>
-        <link>http://blog.boushley.net/css/ie/bugs/2014/07/09/ie-bug-with-pseudo-elements-and-nested-visibility.html</link>
-        <guid isPermaLink="true">http://blog.boushley.net/css/ie/bugs/2014/07/09/ie-bug-with-pseudo-elements-and-nested-visibility.html</guid>
+        <link>http://blog.boushley.net/2014/07/09/ie-bug-with-pseudo-elements-and-nested-visibility/</link>
+        <guid isPermaLink="true">http://blog.boushley.net/2014/07/09/ie-bug-with-pseudo-elements-and-nested-visibility/</guid>
         
         
         <category>css</category>
@@ -452,8 +540,8 @@ setup.&lt;/p&gt;
 cover most usecases out of the box while being flexible enough to fit unexpected needs. Until next time.&lt;/p&gt;
 </description>
         <pubDate>Fri, 27 Jun 2014 20:14:16 -0700</pubDate>
-        <link>http://blog.boushley.net/js/node/metalsmith/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2.html</link>
-        <guid isPermaLink="true">http://blog.boushley.net/js/node/metalsmith/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2.html</guid>
+        <link>http://blog.boushley.net/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2/</link>
+        <guid isPermaLink="true">http://blog.boushley.net/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2/</guid>
         
         
         <category>js</category>
@@ -496,8 +584,8 @@ cover most usecases out of the box while being flexible enough to fit unexpected
 &lt;p&gt;&lt;a href=&quot;http://blog.boushley.net/blog/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2/&quot;&gt;Part 2&lt;/a&gt; is now out.&lt;/p&gt;
 </description>
         <pubDate>Wed, 18 Jun 2014 20:24:56 -0700</pubDate>
-        <link>http://blog.boushley.net/js/node/metalsmith/2014/06/18/static-site-generators-in-a-single-page-applications-world.html</link>
-        <guid isPermaLink="true">http://blog.boushley.net/js/node/metalsmith/2014/06/18/static-site-generators-in-a-single-page-applications-world.html</guid>
+        <link>http://blog.boushley.net/2014/06/18/static-site-generators-in-a-single-page-applications-world/</link>
+        <guid isPermaLink="true">http://blog.boushley.net/2014/06/18/static-site-generators-in-a-single-page-applications-world/</guid>
         
         
         <category>js</category>
@@ -548,8 +636,8 @@ that gives you a css selector type query system, similar to jQuery or document.q
 and projects, but the language really feels like it gives you a solid set of foundational tools.&lt;/p&gt;
 </description>
         <pubDate>Sat, 07 Jun 2014 09:21:35 -0700</pubDate>
-        <link>http://blog.boushley.net/go/familysearch/2014/06/07/scraping-and-making-in-go.html</link>
-        <guid isPermaLink="true">http://blog.boushley.net/go/familysearch/2014/06/07/scraping-and-making-in-go.html</guid>
+        <link>http://blog.boushley.net/2014/06/07/scraping-and-making-in-go/</link>
+        <guid isPermaLink="true">http://blog.boushley.net/2014/06/07/scraping-and-making-in-go/</guid>
         
         
         <category>go</category>
@@ -585,79 +673,13 @@ not just across a single team but across the entire language.&lt;/p&gt;
 how important a languages creation myth was to the language itself.&lt;/p&gt;
 </description>
         <pubDate>Sat, 24 May 2014 20:48:59 -0700</pubDate>
-        <link>http://blog.boushley.net/programming%20languages/go/2014/05/24/programming-language-origins.html</link>
-        <guid isPermaLink="true">http://blog.boushley.net/programming%20languages/go/2014/05/24/programming-language-origins.html</guid>
+        <link>http://blog.boushley.net/2014/05/24/programming-language-origins/</link>
+        <guid isPermaLink="true">http://blog.boushley.net/2014/05/24/programming-language-origins/</guid>
         
         
         <category>programming languages</category>
         
         <category>go</category>
-        
-      </item>
-    
-      <item>
-        <title>Getting Started</title>
-        <description>&lt;h2 id=&quot;getting-started&quot;&gt;Getting Started&lt;/h2&gt;
-
-&lt;p&gt;As I embark on the adventure of blogging once again (yes, I’ve tried this a few times) I can’t help but feel nostalgic 
-about posts I’ve made in the past. But as I consider posting I don’t think I want to start with a bunch links to old 
-blog posts, I’ll save those for a time when I’m running low on time.&lt;/p&gt;
-
-&lt;p&gt;So instead I want to give a brief overview of my career thus far so there can be some background for where my opinions 
-come from.&lt;/p&gt;
-
-&lt;p&gt;I started developing software for money when I was in high school. My family is very entrepreneurial so there were 
-plenty of opportunities for me to help. My first project was helping my cousin, &lt;a href=&quot;http://blog.natebeck.net/&quot;&gt;Nate Beck&lt;/a&gt;, 
-with a few Flash and PHP clients. From there I took on building a few projects on my own from scratch. Both of these 
-were custom PHP applications and I still avoided JavaScript for anything beyond basic input validation / formatting.&lt;/p&gt;
-
-&lt;p&gt;After high school I started my college career at &lt;a href=&quot;http://nau.edu/&quot;&gt;NAU&lt;/a&gt; where I worked in the school’s IT department, 
-and learned that I really preferred programming. I took a break after my first year in college to go on a mission for my 
-church, &lt;a href=&quot;http://www.mormon.org/&quot;&gt;The Church of Jesus Christ of Latter-Day Saints&lt;/a&gt;. After that I returned to NAU for 
-another semester and then my career began to change.&lt;/p&gt;
-
-&lt;p&gt;I moved from Flagstaff, AZ to Tempe, AZ which necessitated a change in jobs, and this time I found a small Web 
-Development shop, called &lt;a href=&quot;http://www.azpixels.com/&quot;&gt;AZ Pixels&lt;/a&gt;, to work at. This is where I began to learn about
-JavaScript, and some of the dangers of PHP. This is also a place where I learned a lot about the importance of a good 
-development workflow.&lt;/p&gt;
-
-&lt;p&gt;After working at AZ Pixels for a year and a half I moved on to a job doing a
-&lt;a href=&quot;http://en.wikipedia.org/wiki/Staff_augmentation&quot;&gt;staff augmentation contract&lt;/a&gt; for Kodak Gallery. This was my first job 
-where JavaScript was my primary language. Up to this point I had been doing web development, but it had been primarily 
-PHP with a bit of JavaScript sprinkled in. When I moved to Kodak Gallery I focused soley on JavaScript and front-end 
-development.&lt;/p&gt;
-
-&lt;p&gt;During the time I was at AZ Pixels and Kodak Gallery I was still working closely with &lt;a href=&quot;http://blog.natebeck.net/&quot;&gt;Nate&lt;/a&gt;
-and helping out on projects from time to time. This work drifted further and further into the realm of Flash and Flex 
-development, and was a nice counter point to the strong JavaScript experience I was getting at Kodak Gallery. During 
-this time I spoke at a couple &lt;a href=&quot;http://www.360flex.com/&quot;&gt;360 Flex&lt;/a&gt; conferences and made my first few real open source 
-contributions.&lt;/p&gt;
-
-&lt;p&gt;After I graduated I wanted to try a change of pace so I moved to Seattle and worked for Microsoft. I was only there for 
-a short time, but in that time I dove into C# and SilverLight. While the platform was already in its death throws at the 
-time it was great to gain exposure to yet another technology for delivering solid interactive experiences on the web.&lt;/p&gt;
-
-&lt;p&gt;Next I tried another big corporation and worked for Amazon Web Services working with JavaScript again starting to define
-their new generation of web consoles. When I first arrived on my team they had just begun porting their old console to 
-GWT so I got to have exposure to another front-end web technology. After finishing that console we decided to write the 
-next conosle in a native JavaScript framework, and decided to use &lt;a href=&quot;https://angularjs.org/&quot;&gt;AngularJS&lt;/a&gt;. We liked Angular
-so much that we decided to rewrite our GWT console in Angular.&lt;/p&gt;
-
-&lt;p&gt;After a year and a half at AWS life brought me to New York City where I found a job at a great &lt;a href=&quot;https://www.betterment.com/&quot;&gt;personal investment&lt;/a&gt;
-startup named &lt;a href=&quot;https://www.betterment.com/&quot;&gt;Betterment&lt;/a&gt;. Betterment was a great place to work, and they had a great
-native JavaScript application using Backbone and Marrionette. I was able to learn quite a bit about those technologies
-and the feel of working at a small company.&lt;/p&gt;
-
-&lt;p&gt;After less than a year life brought me back to Seattle where I’ve found a job at another great startup that does &lt;a href=&quot;http://www.extrahop.com/products/wire-data/&quot;&gt;wire level analytics&lt;/a&gt;
-called &lt;a href=&quot;http://www.extrahop.com/&quot;&gt;ExtraHop&lt;/a&gt;. ExtraHop has some products that are currently being migrated from Flex to
-AngularJS as well as a diverse set of web properties. We’ll have to see where things go with ExtraHop.&lt;/p&gt;
-</description>
-        <pubDate>Fri, 16 May 2014 18:00:37 -0700</pubDate>
-        <link>http://blog.boushley.net/meta/2014/05/16/getting-started.html</link>
-        <guid isPermaLink="true">http://blog.boushley.net/meta/2014/05/16/getting-started.html</guid>
-        
-        
-        <category>meta</category>
         
       </item>
     
