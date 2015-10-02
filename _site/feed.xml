@@ -5,9 +5,79 @@
     <description></description>
     <link>http://blog.boushley.net/</link>
     <atom:link href="http://blog.boushley.net/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 18 Sep 2015 21:14:38 -0700</pubDate>
-    <lastBuildDate>Fri, 18 Sep 2015 21:14:38 -0700</lastBuildDate>
+    <pubDate>Fri, 02 Oct 2015 07:44:08 -0700</pubDate>
+    <lastBuildDate>Fri, 02 Oct 2015 07:44:08 -0700</lastBuildDate>
     <generator>Jekyll v2.4.0</generator>
+    
+      <item>
+        <title>Serverless Architecture with JAWS</title>
+        <description>&lt;h2 id=&quot;where-were-going-we-dont-need-sroadss-servers&quot;&gt;Where we’re going, we don’t need &lt;s&gt;roads&lt;/s&gt; servers.&lt;/h2&gt;
+&lt;p&gt;With the recent-ish release of &lt;a href=&quot;https://aws.amazon.com/api-gateway/&quot;&gt;Amazon API Gateway&lt;/a&gt; AWS now has everything you need for a serverless 
+architecture. Depending on how you work this should sound like the coolest thing ever, or the scariest thing ever. In 
+its current state this architecture does not fit every usecase, but even as such an early technology it is applicable to 
+an amazing range of projects.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-pieces&quot;&gt;The Pieces&lt;/h2&gt;
+
+&lt;h4 id=&quot;aws-lambda&quot;&gt;AWS Lambda&lt;/h4&gt;
+&lt;p&gt;Last year Amazon announced &lt;a href=&quot;https://aws.amazon.com/lambda/&quot;&gt;AWS Lambda&lt;/a&gt; in a preview form, and earlier this year they release Lambda as a production service. 
+Lambda is a dramatic shift in the way things run on AWS. Lambda charges for compute time in 100ms intervals. You provide 
+a piece of code and AWS will run that code in response to events.&lt;/p&gt;
+
+&lt;p&gt;This is really interesting because you don’t need to have a server always ready to take requests. You don’t need to 
+worry about scaling your servers with demand. Events come in and your code processes them, that’s all you have to worry 
+about. AWS scales up their infrastructure as needed and will run as many simultaneous instances of your code as 
+necessary.&lt;/p&gt;
+
+&lt;p&gt;Alright, so Lambda can respond to events, and to start these were things like SNS triggers, S3 upload notification, 
+Kinesis processing, but then it all changed.&lt;/p&gt;
+
+&lt;h4 id=&quot;amazon-api-gateway&quot;&gt;Amazon API Gateway&lt;/h4&gt;
+&lt;p&gt;Then in the middle of this year Amazon launched Amazon API Gateway. This service lets you offload much of the heavy 
+lifting around making an API production ready (DDoS shedding, Environment Differentiation, etc.) sells it. However the 
+most important thing API Gateway enables is the translation of HTTP Requests into an &lt;strong&gt;event&lt;/strong&gt; and the translation of 
+the Lambda response back into an HTTP Response.&lt;/p&gt;
+
+&lt;p&gt;Now you can standup your API endpoints using API Gateway and then use Lambda to perform the backend processing. Setting 
+up a proof of concept around this is pretty straightforward, especially since the AWS Lambda console has a helper that 
+creates an API Gateway endpoint in front of your service. However there are a lot of moving parts in this, and things 
+start to get messy, fast.&lt;/p&gt;
+
+&lt;h4 id=&quot;jawshttpsgithubcomjaws-frameworkjaws&quot;&gt;&lt;a href=&quot;https://github.com/jaws-framework/JAWS&quot;&gt;JAWS&lt;/a&gt;&lt;/h4&gt;
+&lt;p&gt;JAWS (standing for Just AWS Without Servers) is an open source project that automates the setup of Amazon API Gateway 
+endpoints and Lambda functions. It handles environment variables, cross-region replication, and multiple stages. The 
+patterns and best practices JAWS recommends also encourage writing your code in a testable, AWS independent manner.&lt;/p&gt;
+
+&lt;h2 id=&quot;so-what&quot;&gt;So What?&lt;/h2&gt;
+&lt;p&gt;It’s definitely interesting that you can hook up these services to make something that behaves the same as the servers 
+we’ve used for years, but why should you care? Why should we bother learning this new way of doing things?&lt;/p&gt;
+
+&lt;p&gt;Running a service with moderate load, like 16,000 request/day at an average of 200ms would often require you to stand up 
+at least two servers (more if you want truly high availability), if those servers are the common c3.large that’s going 
+to cost you $2.97/day (assuming 1 year up front payment). If you can run on an m3.medium that drops to $0.97. Running 
+AWS Lambda will cost just $0.05/day. If you include the cost of API Gateway that goes up to about $1.80/day, but the raw 
+EC2 instance calculations don’t include the prices of an ELB ($0.60/day) or some service to handle DDoS shedding. So 
+cost is definitely a reason to consider this new architecture.&lt;/p&gt;
+
+&lt;p&gt;However cost isn’t the only reason. One of the beauties of this setup is that it scales to extremely large services as 
+well. If you get a huge burst of traffic from a Hacker News or Reddit front page this setup isn’t going to fall over. 
+This setup isn’t going to require minutes for more EC2 instances to turn on. Lambda handles scaling for you, and you 
+continue running your setup at peak efficiency. Most architectures out there require you to choose developer 
+productivity or scalability. With JAWS you no longer have to choose, you can easily get a service started and it will 
+continue to handle your traffic as your site grows.&lt;/p&gt;
+</description>
+        <pubDate>Fri, 02 Oct 2015 07:03:52 -0700</pubDate>
+        <link>http://blog.boushley.net/2015/10/02/serverless-architecture-with-jaws/</link>
+        <guid isPermaLink="true">http://blog.boushley.net/2015/10/02/serverless-architecture-with-jaws/</guid>
+        
+        
+        <category>js</category>
+        
+        <category>jaws</category>
+        
+        <category>aws</category>
+        
+      </item>
     
       <item>
         <title>Experimenting with ECMAScript 6 Default Function Parameters</title>
@@ -643,43 +713,6 @@ and projects, but the language really feels like it gives you a solid set of fou
         <category>go</category>
         
         <category>familysearch</category>
-        
-      </item>
-    
-      <item>
-        <title>Origins of a Programming Language</title>
-        <description>&lt;p&gt;I’ve spent a couple of weeks now exploring &lt;a href=&quot;http://golang.org/&quot;&gt;Go&lt;/a&gt; and I’m really happy. The language has lots of 
-interesting features, including a great standard library. That got me thinking about some of the other languages I’ve
-experimented with and the impact of a language’s origin. &lt;/p&gt;
-
-&lt;p&gt;I’ve experimented with a few languages that were created by programming language connoisseurs, and these usually have 
-some really fascinating features and seem to solve many of the problems you face in development, but they usually lack 
-any sort of community, standard library or tooling. They appear to have the necessary ingredients, but can’t seem to get 
-the traction necessary to get going.&lt;/p&gt;
-
-&lt;p&gt;Another interesting language I’ve experimented with is &lt;a href=&quot;http://kotlin.jetbrains.org/&quot;&gt;Kotlin&lt;/a&gt;. The language has some 
-interesting features (compiling to JVM bytecode and JavaScript is pretty cool), but the most interesting thing to me was 
-the amazing tooling the language had when it came out. Now it makes sense, &lt;a href=&quot;http://www.jetbrains.com/&quot;&gt;JetBrains&lt;/a&gt; makes 
-the best IDEs, so when they make a language you know the tooling is going to be solid.&lt;/p&gt;
-
-&lt;p&gt;Then you have languages like Go that are developed by a powerhouse technology company with the intent to use it 
-internally. The language does a great job of solving problems faced by large or diverse teams, and teams that are trying 
-to get stuff done quickly. One example of problems Go solves is code formatting. Code formatting is always a tension 
-point in teams, and often there is no standard because it’s too contentious to arrive at one. Instead Go has
-&lt;a href=&quot;http://blog.golang.org/go-fmt-your-code&quot;&gt;gofmt&lt;/a&gt; which should be used to ensure that code formatting is consistent, and
-not just across a single team but across the entire language.&lt;/p&gt;
-
-&lt;p&gt;These characteristics of languages make sense when you know the origin of the language, but I hadn’t realized until now
-how important a languages creation myth was to the language itself.&lt;/p&gt;
-</description>
-        <pubDate>Sat, 24 May 2014 20:48:59 -0700</pubDate>
-        <link>http://blog.boushley.net/2014/05/24/programming-language-origins/</link>
-        <guid isPermaLink="true">http://blog.boushley.net/2014/05/24/programming-language-origins/</guid>
-        
-        
-        <category>programming languages</category>
-        
-        <category>go</category>
         
       </item>
     
