@@ -5,16 +5,114 @@
     <description></description>
     <link>http://blog.boushley.net/</link>
     <atom:link href="http://blog.boushley.net/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 02 Oct 2015 07:44:08 -0700</pubDate>
-    <lastBuildDate>Fri, 02 Oct 2015 07:44:08 -0700</lastBuildDate>
+    <pubDate>Fri, 02 Oct 2015 20:38:12 -0700</pubDate>
+    <lastBuildDate>Fri, 02 Oct 2015 20:38:12 -0700</lastBuildDate>
     <generator>Jekyll v2.4.0</generator>
+    
+      <item>
+        <title>Web Applications Without Servers</title>
+        <description>&lt;h2 id=&quot;web-applications-using-just-aws-without-servers&quot;&gt;Web Applications using Just AWS Without Servers&lt;/h2&gt;
+&lt;p&gt;In my &lt;a href=&quot;/2015/10/02/serverless-architecture-with-jaws/&quot;&gt;last post&lt;/a&gt; I discussed the basics of &lt;a href=&quot;need link&quot;&gt;JAWS&lt;/a&gt; a tool 
+enabling serverless architectures on AWS. In this post we’ll talk about how you can add a few more key AWS services and 
+end up with a complete monstrously scalable Web Application without any servers and &lt;em&gt;it’s cheap&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;The combination we talked about last time works for your API, and for some applications that’s all they need to host. 
+But this is about web applications, and for those there’s a load of static content you need to host. On top of needing 
+to host these static assets somewhere, the &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy&quot;&gt;same-origin policy&lt;/a&gt;
+means that if your static assets are on a different domain from your API, you have to deal with &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS&quot;&gt;CORS&lt;/a&gt;
+which can be a big pain.&lt;/p&gt;
+
+&lt;p&gt;Today I’ll show you how to host your web application without any servers using JAWS, Amazon S3 and CloudFront, using a 
+single domain / origin.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-pieces&quot;&gt;The Pieces&lt;/h2&gt;
+
+&lt;h3 id=&quot;review&quot;&gt;Review&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://aws.amazon.com/lambda/&quot;&gt;AWS Lambda&lt;/a&gt; lets you provide piece of code and AWS will run that code in response to
+events. They take care of running that code as much or as little as necessary.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://aws.amazon.com/api-gateway/&quot;&gt;Amazon API Gateway&lt;/a&gt; is a service proxy, with the key benefit of translating HTTP 
+Requests to AWS events that Lambda can process.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/jaws-framework/JAWS&quot;&gt;JAWS&lt;/a&gt; is an open source project that automates the setup of Amazon API Gateway 
+endpoints and Lambda functions.&lt;/p&gt;
+
+&lt;h3 id=&quot;the-new-pieces&quot;&gt;The new Pieces&lt;/h3&gt;
+
+&lt;h4 id=&quot;amazon-s3&quot;&gt;Amazon S3&lt;/h4&gt;
+&lt;p&gt;One of the oldest Amazon services &lt;a href=&quot;https://aws.amazon.com/s3/&quot;&gt;Amazon S3&lt;/a&gt; is for storing files in a highly available and extremely
+redundant manner. S3 supports &lt;a href=&quot;http://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html&quot;&gt;hosting static websites&lt;/a&gt; today.
+We’ll be using this functionality and teaming it up with JAWS.&lt;/p&gt;
+
+&lt;h4 id=&quot;amazon-cloudfront&quot;&gt;Amazon CloudFront&lt;/h4&gt;
+&lt;p&gt;&lt;a href=&quot;https://aws.amazon.com/cloudfront/&quot;&gt;Amazon CloudFront&lt;/a&gt; is the AWS CDN. It is highly configurable, and works well using 
+Amazon S3 as an &lt;a href=&quot;http://docs.aws.amazon.com/general/latest/gr/glos-chap.html#originserver&quot;&gt;origin server&lt;/a&gt;. CloudFront 
+also allows routing between multiple origin servers based on &lt;a href=&quot;http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-cachebehavior.html&quot;&gt;CacheBehaviors&lt;/a&gt;.
+Which is a fancy way of saying that CloudFront lets you route traffic between different backends based on the path of 
+the request.&lt;/p&gt;
+
+&lt;h2 id=&quot;alright-lets-bring-it-together&quot;&gt;Alright, let’s bring it together&lt;/h2&gt;
+&lt;p&gt;First we need to have our static assets hosted in S3. Setup S3 static website hosting, and be sure that this works by 
+visiting the URL that the S3 console gives you for your page.&lt;/p&gt;
+
+&lt;p&gt;Next we need to setup our API Gateway endpoints. To get these to be easily grouped on our CloudFront distribution we 
+should prefix all of these routes with a common path, like &lt;code&gt;/api/&lt;/code&gt;. JAWS makes it easy to create API Gateway endpoints 
+that are backed by Lambda services. Get one of those setup and test it with something like curl to be sure it works as
+expected.&lt;/p&gt;
+
+&lt;p&gt;Finally we bring it all together with a CloudFront distribution with two origins. The first (default) origin is our S3
+bucket, then we add our API Gateway endpoint as our second origin. The base path that we set on the API gateway origin
+is best to set to your API Gateway stage. Finally we can setup a Cache Behavior that routes traffic for a specific set
+of routes, like &lt;code&gt;/api/*&lt;/code&gt; (the prefix we used when setting up our API Gateway endpoint) to our API Gateway origin.&lt;/p&gt;
+
+&lt;h2 id=&quot;manual-configuration-can-we-automate-that&quot;&gt;Manual configuration! Can we automate that?&lt;/h2&gt;
+&lt;p&gt;Indeed, we can make this part of our JAWS resources CloudFormation template. Luckily JAWS is extensible using
+&lt;a href=&quot;https://github.com/awsm-org/awsm&quot;&gt;awsm modules&lt;/a&gt; and I wrote the &lt;a href=&quot;https://github.com/boushley/awsm-cloudfront&quot;&gt;awsm cloudfront&lt;/a&gt;
+module that contains a CloudFormation resource definition that automates most of this setup. At the time of writing there are some
+manual steps where you have to modify the CloudFormation template to fill in your S3 bucket and API Gateway endpoint, but there
+are &lt;a href=&quot;https://github.com/awsm-org/awsm/issues/2&quot;&gt;extensions&lt;/a&gt; to the awsm module format that would make that more automated.&lt;/p&gt;
+
+&lt;h2 id=&quot;drawbacks&quot;&gt;Drawbacks&lt;/h2&gt;
+&lt;p&gt;There are lots &lt;a href=&quot;https://github.com/boushley/awsm-cloudfront#watch-your-paths&quot;&gt;paths&lt;/a&gt; involved here and they
+can get confusing, so keep an eye on that.&lt;/p&gt;
+
+&lt;p&gt;There are also some missing features in API Gateway. One of these missing features is the ability to &lt;a href=&quot;https://forums.aws.amazon.com/thread.jspa?messageID=675607&quot;&gt;dynamically set 
+headers on the HTTP response&lt;/a&gt; based on values in the Lambda
+event response. This is necessary for setting cookies or performing a HTTP redirect, which require setting the &lt;code&gt;Cookie&lt;/code&gt;
+and &lt;code&gt;Location&lt;/code&gt; header respectively. Another missing feature is the ability to set the HTTP Status Code based on something
+in the Lambda event response. This makes something like OAuth a pain to implement, however it’s definitely doable.&lt;/p&gt;
+
+&lt;p&gt;I’ve heard of a few other drawbacks, but none of them are show stoppers. There are bumps on this road, but it’s a pretty 
+amazing setup without much of the common frustrations.&lt;/p&gt;
+
+&lt;h2 id=&quot;this-is-an-exciting-time&quot;&gt;This is an exciting time&lt;/h2&gt;
+&lt;p&gt;This is amazing! Previously to host a web application with an API in a robust manner was fairly costly either in money 
+or time (and often in both). This system makes it cheap and relatively simple to setup and deploy a web application. 
+Even more once you’ve got that application deployed it scales well beyond many standard web application architectures 
+without getting any more complex.&lt;/p&gt;
+
+&lt;p&gt;Keep an eye on JAWS and the serverless architecture, this could be huge!&lt;/p&gt;
+</description>
+        <pubDate>Sat, 03 Oct 2015 07:03:52 -0700</pubDate>
+        <link>http://blog.boushley.net/2015/10/03/web-apps-without-servers/</link>
+        <guid isPermaLink="true">http://blog.boushley.net/2015/10/03/web-apps-without-servers/</guid>
+        
+        
+        <category>js</category>
+        
+        <category>jaws</category>
+        
+        <category>aws</category>
+        
+      </item>
     
       <item>
         <title>Serverless Architecture with JAWS</title>
         <description>&lt;h2 id=&quot;where-were-going-we-dont-need-sroadss-servers&quot;&gt;Where we’re going, we don’t need &lt;s&gt;roads&lt;/s&gt; servers.&lt;/h2&gt;
 &lt;p&gt;With the recent-ish release of &lt;a href=&quot;https://aws.amazon.com/api-gateway/&quot;&gt;Amazon API Gateway&lt;/a&gt; AWS now has everything you need for a serverless 
 architecture. Depending on how you work this should sound like the coolest thing ever, or the scariest thing ever. In 
-its current state this architecture does not fit every usecase, but even as such an early technology it is applicable to 
+its current state this architecture does not fit every use case, but even as such an early technology it is applicable to 
 an amazing range of projects.&lt;/p&gt;
 
 &lt;h2 id=&quot;the-pieces&quot;&gt;The Pieces&lt;/h2&gt;
@@ -38,7 +136,7 @@ lifting around making an API production ready (DDoS shedding, Environment Differ
 most important thing API Gateway enables is the translation of HTTP Requests into an &lt;strong&gt;event&lt;/strong&gt; and the translation of 
 the Lambda response back into an HTTP Response.&lt;/p&gt;
 
-&lt;p&gt;Now you can standup your API endpoints using API Gateway and then use Lambda to perform the backend processing. Setting 
+&lt;p&gt;Now you can stand up your API endpoints using API Gateway and then use Lambda to perform the backend processing. Setting 
 up a proof of concept around this is pretty straightforward, especially since the AWS Lambda console has a helper that 
 creates an API Gateway endpoint in front of your service. However there are a lot of moving parts in this, and things 
 start to get messy, fast.&lt;/p&gt;
@@ -663,56 +761,6 @@ cover most usecases out of the box while being flexible enough to fit unexpected
         <category>node</category>
         
         <category>metalsmith</category>
-        
-      </item>
-    
-      <item>
-        <title>Scraping and Making in Go</title>
-        <description>&lt;p&gt;Over the past week I’ve been experimenting with the &lt;a href=&quot;https://familysearch.org/&quot;&gt;FamilySearch&lt;/a&gt;
-&lt;a href=&quot;https://familysearch.org/developers/docs/api/resources&quot;&gt;API&lt;/a&gt;. I’m interested in building some applications 
-against this API, and since I’ve been learning Go lately I figured this would be a good project to work on. I looked at 
-the community projects that are already around, and there weren’t any in Go (which really was expected). The API and 
-DataTypes are well documented, so I started building out &lt;a href=&quot;https://github.com/boushley/go-family-search&quot;&gt;go-family-search&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h2 id=&quot;the-hard-way&quot;&gt;The Hard Way&lt;/h2&gt;
-&lt;p&gt;The first day I knew I needed to start getting the DataTypes written out, so I wrote out the Address data object
-&lt;a href=&quot;https://github.com/boushley/go-family-search/commit/58cbc1b0839abe9dfbe49fcb053ab94a177868db&quot;&gt;by hand&lt;/a&gt; and was
-happy to have gotten started on the project. However the more I thought about what I was attempting to do the
-more I realized manually writing each of those DataTypes didn’t sound like fun. More than that the API docs are so well
-organized and accessible that I could see my writing would be fairly mechanical.&lt;/p&gt;
-
-&lt;h2 id=&quot;scraping-to-the-rescue&quot;&gt;Scraping to the Rescue!&lt;/h2&gt;
-&lt;p&gt;So I started work on writing a scraper that would scrape the DataTypes listing page to find which types I wanted and 
-then for each type scrape the definition from the corresponding page. It took me a couple of nights to work through the 
-process and build out the tool, but then in under a minute all of the DataTypes were created for me. Now the foundation 
-that is needed to build out the API calls is ready to Go (get it?).&lt;/p&gt;
-
-&lt;h3 id=&quot;what-went-well&quot;&gt;What Went Well&lt;/h3&gt;
-&lt;p&gt;Because I was working in Go I didn’t have to spend much time worrying about the formatting of the code. The built in 
-parsers and printers meant that as long as the code was correct, all the spacing and formatting would be taken care of. 
-It also improved my feedback loop since I didn’t have to wait for the tool to finish and then attempt a &lt;code&gt;go build&lt;/code&gt;, the 
-parser would give me errors before the go file was even written to disk.&lt;/p&gt;
-
-&lt;h3 id=&quot;not-so-good&quot;&gt;Not So Good&lt;/h3&gt;
-&lt;p&gt;There were some pieces of this that were more difficult than they needed to be though. Working in newer languages like 
-Go always brings some extra challenges because the tools you want may not be available. In trying to parse information 
-out of an HTML document I ended up using a &lt;a href=&quot;https://godoc.org/code.google.com/p/go.net/html&quot;&gt;nice tool&lt;/a&gt; that does HTML
-tokenizing and parsing, but this is still a lower level tool than most people would want for performing web scraping. 
-The upside to that being that I now know of at least one more project that it would be nice to write in Go, something 
-that gives you a css selector type query system, similar to jQuery or document.querySelectorAll.&lt;/p&gt;
-
-&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;In the end I still really enjoy writing Go. The language is new and so there are not nearly as many established tools 
-and projects, but the language really feels like it gives you a solid set of foundational tools.&lt;/p&gt;
-</description>
-        <pubDate>Sat, 07 Jun 2014 09:21:35 -0700</pubDate>
-        <link>http://blog.boushley.net/2014/06/07/scraping-and-making-in-go/</link>
-        <guid isPermaLink="true">http://blog.boushley.net/2014/06/07/scraping-and-making-in-go/</guid>
-        
-        
-        <category>go</category>
-        
-        <category>familysearch</category>
         
       </item>
     

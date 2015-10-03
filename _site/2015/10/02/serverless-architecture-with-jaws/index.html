@@ -74,7 +74,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <h2 id="where-were-going-we-dont-need-sroadss-servers">Where we’re going, we don’t need <s>roads</s> servers.</h2>
 <p>With the recent-ish release of <a href="https://aws.amazon.com/api-gateway/">Amazon API Gateway</a> AWS now has everything you need for a serverless 
 architecture. Depending on how you work this should sound like the coolest thing ever, or the scariest thing ever. In 
-its current state this architecture does not fit every usecase, but even as such an early technology it is applicable to 
+its current state this architecture does not fit every use case, but even as such an early technology it is applicable to 
 an amazing range of projects.</p>
 
 <h2 id="the-pieces">The Pieces</h2>
@@ -98,7 +98,7 @@ lifting around making an API production ready (DDoS shedding, Environment Differ
 most important thing API Gateway enables is the translation of HTTP Requests into an <strong>event</strong> and the translation of 
 the Lambda response back into an HTTP Response.</p>
 
-<p>Now you can standup your API endpoints using API Gateway and then use Lambda to perform the backend processing. Setting 
+<p>Now you can stand up your API endpoints using API Gateway and then use Lambda to perform the backend processing. Setting 
 up a proof of concept around this is pretty straightforward, especially since the AWS Lambda console has a helper that 
 creates an API Gateway endpoint in front of your service. However there are a lot of moving parts in this, and things 
 start to get messy, fast.</p>
@@ -131,7 +131,23 @@ continue to handle your traffic as your site grows.</p>
 </div>
 
       </div>
+
+      <div class="wrapper">
+        
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            var disqus_shortname = 'boushley';
+            (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+        
+      </div>
     </div>
+
 
     <footer class="site-footer">
 

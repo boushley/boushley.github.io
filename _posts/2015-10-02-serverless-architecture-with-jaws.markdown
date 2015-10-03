@@ -12,7 +12,7 @@ categories:
 ## Where we're going, we don't need <s>roads</s> servers.
 With the recent-ish release of [Amazon API Gateway](https://aws.amazon.com/api-gateway/) AWS now has everything you need for a serverless 
 architecture. Depending on how you work this should sound like the coolest thing ever, or the scariest thing ever. In 
-its current state this architecture does not fit every usecase, but even as such an early technology it is applicable to 
+its current state this architecture does not fit every use case, but even as such an early technology it is applicable to 
 an amazing range of projects.
 
 ## The Pieces
@@ -36,7 +36,7 @@ lifting around making an API production ready (DDoS shedding, Environment Differ
 most important thing API Gateway enables is the translation of HTTP Requests into an **event** and the translation of 
 the Lambda response back into an HTTP Response.
 
-Now you can standup your API endpoints using API Gateway and then use Lambda to perform the backend processing. Setting 
+Now you can stand up your API endpoints using API Gateway and then use Lambda to perform the backend processing. Setting 
 up a proof of concept around this is pretty straightforward, especially since the AWS Lambda console has a helper that 
 creates an API Gateway endpoint in front of your service. However there are a lot of moving parts in this, and things 
 start to get messy, fast.
