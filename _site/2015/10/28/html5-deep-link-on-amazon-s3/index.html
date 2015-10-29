@@ -6,11 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Coping with Code</title>
-  <meta name="description" content="">
+  <title>HTML5 Style Deep Linking on S3</title>
+  <meta name="description" content="The WantIn my last post I talked about running a Single Page Application using JAWS and Amazon S3.One of my first questions after getting that working was ho...">
 
   <link rel="stylesheet" href="/css/main.css">
-  <link rel="canonical" href="http://blog.boushley.net/">
+  <link rel="canonical" href="http://blog.boushley.net/2015/10/28/html5-deep-link-on-amazon-s3/">
   <link rel="alternate" type="application/rss+xml" title="Coping with Code" href="http://blog.boushley.net/feed.xml" />
 </head>
 
@@ -63,133 +63,76 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <div class="page-content">
       <div class="wrapper">
-        <div class="home">
+        <div class="post">
 
-  <h1 class="page-heading">Posts</h1>
+  <header class="post-header">
+    <h1 class="post-title">HTML5 Style Deep Linking on S3</h1>
+    <p class="post-meta">Oct 28, 2015</p>
+  </header>
 
-  <ul class="post-list">
-    
-      <li>
-        <span class="post-meta">Oct 28, 2015</span>
+  <article class="post-content">
+    <h2 id="the-want">The Want</h2>
+<p>In my last post I talked about running a Single Page Application using <a href="/2015/10/03/web-apps-without-servers/">JAWS and Amazon S3</a>.
+One of my first questions after getting that working was how I might be able to support deep linking. Specifically how 
+might I be able to handle HTML 5 style deep linking. <a href="http://caniuse.com/#feat=history">History Management (e.g. pushState)</a>
+has pretty good browser support and the new style URLs look much cleaner, so in new projects this is the way I like to 
+go.</p>
 
-        <h2>
-          <a class="post-link" href="/2015/10/28/html5-deep-link-on-amazon-s3/">HTML5 Style Deep Linking on S3</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Oct 3, 2015</span>
+<h2 id="the-problem">The Problem</h2>
+<p>Usually to support the new style URLs you need a backend server that can dynamically render the same routes that the 
+front end is rendering dynamically. And when we’re hosting a site on S3 we don’t have that capability. We are very much 
+hosting a static site, no frills.</p>
 
-        <h2>
-          <a class="post-link" href="/2015/10/03/web-apps-without-servers/">Web Applications Without Servers</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Oct 2, 2015</span>
+<p>For a while I thought I was stuck. I didn’t see how I could have those nice URLs and still support sharing links or even 
+just browser refreshes. If you refreshed the browser on some page other than the index (like /foo/bar) you get the nasty 
+S3 Key Not Found screen.</p>
 
-        <h2>
-          <a class="post-link" href="/2015/10/02/serverless-architecture-with-jaws/">Serverless Architecture with JAWS</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Sep 19, 2015</span>
+<h2 id="the-ray-of-light">The Ray of Light</h2>
+<p>I could at least be sure the S3 Key Not Found / 404 page was a nice page… then it hit me! What if we just tell S3 to 
+serve our Single Page App as the error page?</p>
 
-        <h2>
-          <a class="post-link" href="/2015/09/19/ecmascript-6-default-parameters/">Experimenting with ECMAScript 6 Default Function Parameters</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Sep 18, 2015</span>
+<p>I hopped into the S3 console and changed the configuration on my bucket. When enabling website hosting for an S3 bucket 
+you can also set the “Index Document” and “Error Document”. So on my bucket I configured both documents to be 
+<code>index.html</code>. The result is that my page loads whenever you go to a non-existent route.</p>
 
-        <h2>
-          <a class="post-link" href="/2015/09/18/nested-visibility-pseudo-elements-and-ie/">Fun with visibility and pseudo elements, and then IE</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Aug 7, 2014</span>
+<p>This means that when you arrive at <code>/</code> initially you load the application as expected. As you navigate around the URL 
+updates. If you hit refresh you are served a 404, but the application loads recognizes the URL and renders the page you 
+expect. The only way you can tell it’s a 404 is if you open up your tools and look at the Status Code.</p>
 
-        <h2>
-          <a class="post-link" href="/2014/08/07/internet-explorer-tracking-protection-and-shared-cdns/">Internet Explorer Tracking Protection and Shared CDNs</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Aug 5, 2014</span>
+<p>This works amazingly well, you can see it in action <a href="http://s3-static-test.s3-website-us-west-2.amazonaws.com/">here</a>.
+(That gif is so mesmerizing, I’ve spent far too long watching that thing loop…)</p>
 
-        <h2>
-          <a class="post-link" href="/2014/08/05/node-dot-js-standard-input-oddities/">Node.js Standard Input Oddities</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jul 26, 2014</span>
+<h2 id="so-what-about-actual-unknown-pages">So what about actual unknown pages?</h2>
+<p>This presented one other oddity, what about actual 404s? The solution I came up with was to just handle those 404s in 
+the Single Page Application itself. So the same application still loads, but since the application doesn’t <a href="http://s3-static-test.s3-website-us-west-2.amazonaws.com/this/page/is/not/real">recognize the 
+URL</a> it shows an error screen.</p>
 
-        <h2>
-          <a class="post-link" href="/2014/07/26/elasticsearch-postman-queries/">ElasticSearch Postman Queries</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jul 9, 2014</span>
+<h2 id="serverless">Serverless</h2>
+<p>Running servers is quickly becoming something you should outsource to the experts. There will be oddities along the way 
+(like serving an HTTP 404 when the URL is actually fine), but the wins you get from completely washing your hands of any 
+infrastructure management are huge!</p>
 
-        <h2>
-          <a class="post-link" href="/2014/07/09/ie-bug-with-pseudo-elements-and-nested-visibility/">IE Bug with Pseudo Elements and Nested Visibility</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jun 27, 2014</span>
+<p>I’m sure this approach will offend some peoples sensibilities, but it’s amazing to see how much can be done without 
+needing to maintain your own servers.</p>
 
-        <h2>
-          <a class="post-link" href="/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2/">Static Site Generators in a Single Page Applications World Part 2</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jun 18, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/06/18/static-site-generators-in-a-single-page-applications-world/">Static Site Generators in a Single Page Applications World (Part 1)</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jun 7, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/06/07/scraping-and-making-in-go/">Scraping and Making in Go</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">May 24, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/05/24/programming-language-origins/">Origins of a Programming Language</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">May 16, 2014</span>
-
-        <h2>
-          <a class="post-link" href="/2014/05/16/getting-started/">Getting Started</a>
-        </h2>
-      </li>
-    
-  </ul>
-
-  <p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p>
+  </article>
 
 </div>
 
       </div>
 
       <div class="wrapper">
+        
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            var disqus_shortname = 'boushley';
+            (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
         
       </div>
     </div>
