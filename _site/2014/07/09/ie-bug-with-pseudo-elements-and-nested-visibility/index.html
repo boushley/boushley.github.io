@@ -75,9 +75,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <a href="http://www.w3.org/TR/CSS2/visufx.html#visibility">CSS spec for visibility</a> allows for nested elements to declare 
 themselves visible.</p>
 
-<pre><code>The generated box is invisible (fully transparent, nothing is drawn), but still affects layout. Furthermore,
+<div class="highlighter-rouge"><pre class="highlight"><code>The generated box is invisible (fully transparent, nothing is drawn), but still affects layout. Furthermore,
 descendants of the element will be visible if they have 'visibility: visible'.
 </code></pre>
+</div>
 
 <p>This came in handy, allowing me to make a container hidden until a specific element was focused, but then allowing me to 
 make an icon within that container visible. As I was cleaning this up further I decided the icon really didn’t have any 
@@ -100,8 +101,8 @@ be
 <a href="http://stackoverflow.com/questions/17530947/ie10-visibilityvisible-on-before-pseudo-element-of-visibilityhidden-eleme">some other people</a>
 that have run into this issue as well, but apparently not too many.</p>
 
-<p>In the end I was able to work around this by making all of the children of my parent container <code>visibility: hidden;</code> and 
-then specifically making the pseudo element visible. This didn’t clutter my markup since I was working on a <code>&lt;ul&gt;</code> 
+<p>In the end I was able to work around this by making all of the children of my parent container <code class="highlighter-rouge">visibility: hidden;</code> and 
+then specifically making the pseudo element visible. This didn’t clutter my markup since I was working on a <code class="highlighter-rouge">&lt;ul&gt;</code> 
 element already. So in the end I had a reasonable workaround with hiding all the children, but that wouldn’t work in the 
 scenario my jsfiddle outlines, since the text that is a direct child of the container element would not be hidden.</p>
 

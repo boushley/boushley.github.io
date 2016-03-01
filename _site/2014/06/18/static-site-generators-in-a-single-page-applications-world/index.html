@@ -76,7 +76,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <h2 id="usemin">Usemin</h2>
 <p>One of the great tools in place with Grunt is <a href="https://github.com/yeoman/grunt-usemin">usemin</a>. This tool essentially does a search and replace inside of your html files for a special html comment syntax. You put something like this in your html:</p>
 
-<p><code>html
+<p><code class="highlighter-rouge">html
 &lt;!-- build:js /js/site.js --&gt;
 &lt;script type="text/javascript" src="/js/components/buttons.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="/js/foo/bar.js"&gt;&lt;/script&gt;
@@ -85,11 +85,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <p>In development usemin doesn’t do anything, letting you debug and write your code based on the original files. Then as part of your staging or production build you run the usemin (and hopefully useminPrepare) tasks and you end up with just this:</p>
 
-<p><code>html
+<p><code class="highlighter-rouge">html
 &lt;script type="text/javascript" src="/js/site.js"&gt;&lt;/script&gt;
 </code></p>
 
-<p>The usemin task on its own will just do the search and replace, but useminPrepare is what makes the combo far more powerful. To make this clear without useminPrepare you would have to define some build steps that would result in <code>/js/site.js</code> being created and put into the right location. However useminPrepare will dynamically generate configuration for a <a href="https://github.com/gruntjs/grunt-contrib-concat">concat</a> and <a href="https://github.com/gruntjs/grunt-contrib-uglify">uglify</a> build step that result in the defined file (/js/site.js in this case) being created from the sources listed.</p>
+<p>The usemin task on its own will just do the search and replace, but useminPrepare is what makes the combo far more powerful. To make this clear without useminPrepare you would have to define some build steps that would result in <code class="highlighter-rouge">/js/site.js</code> being created and put into the right location. However useminPrepare will dynamically generate configuration for a <a href="https://github.com/gruntjs/grunt-contrib-concat">concat</a> and <a href="https://github.com/gruntjs/grunt-contrib-uglify">uglify</a> build step that result in the defined file (/js/site.js in this case) being created from the sources listed.</p>
 
 <h2 id="uncss">Uncss</h2>
 <p>Another great tool is <a href="https://github.com/giakki/uncss">uncss</a> which can be used as a <a href="https://github.com/addyosmani/grunt-uncss">grunt task</a> too. This tool will generate a css stylesheet that only contains the styles used on a given set of pages. This is great, because it means I can have my cake and eat it too! I like using frameworks like <a href="http://getbootstrap.com/">Bootstrap</a> or <a href="http://foundation.zurb.com/">Foundation</a> as they’re a great starting point. The downside to using these is that you pull in a lot of unnecessary bulk. This is where uncss shines. If you run uncss over your site you’ll end up with a stylesheet that contains only the styles you’ve used. So in development everything is available to you, and then when you’re ready to deploy anything you haven’t used is pulled out.</p>

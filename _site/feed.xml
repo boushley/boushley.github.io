@@ -5,9 +5,48 @@
     <description></description>
     <link>http://blog.boushley.net/</link>
     <atom:link href="http://blog.boushley.net/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Wed, 28 Oct 2015 19:50:15 -0700</pubDate>
-    <lastBuildDate>Wed, 28 Oct 2015 19:50:15 -0700</lastBuildDate>
-    <generator>Jekyll v2.4.0</generator>
+    <pubDate>Tue, 01 Mar 2016 14:02:33 -0800</pubDate>
+    <lastBuildDate>Tue, 01 Mar 2016 14:02:33 -0800</lastBuildDate>
+    <generator>Jekyll v3.0.3</generator>
+    
+      <item>
+        <title>Web Apps Without Servers - Update</title>
+        <description>&lt;h2 id=&quot;serverless-update&quot;&gt;Serverless Update&lt;/h2&gt;
+&lt;p&gt;In my last set of posts back in October I talked about the serverless architecture and how it had so much potential to
+change the way we build web apps. It turns out that potential has only gotten greater!&lt;/p&gt;
+
+&lt;h3 id=&quot;redirects&quot;&gt;Redirects&lt;/h3&gt;
+&lt;p&gt;Back in October there was a glaring hole in the API Gateway mapping templates. That was that you couldn’t use a value
+from the Lambda response to fill in a header in your response template. Luckily &lt;a href=&quot;https://forums.aws.amazon.com/thread.jspa?threadID=216264&quot;&gt;back in December&lt;/a&gt;
+support for this was added to API Gateway.&lt;/p&gt;
+
+&lt;p&gt;This means that no we can set headers in our responses from AWS Lambda. Suddenly redirects are no longer something you
+have to hack your way around.&lt;/p&gt;
+
+&lt;h3 id=&quot;cookies&quot;&gt;Cookies&lt;/h3&gt;
+&lt;p&gt;Setting cookies was a pretty big missing piece too. As it turns out this is enabled by the same functionality that 
+enabled redirects. Since we can now set response headers based on Lambda return values we can now set the &lt;code class=&quot;highlighter-rouge&quot;&gt;Set-Cookie&lt;/code&gt; 
+header enabling cookies!&lt;/p&gt;
+
+&lt;p&gt;There is one drawback here. Unfortunately we cannot set more than one cookie per request. There is no way to send 
+multiples of the same header as would be required for setting multiple cookies.&lt;/p&gt;
+
+&lt;h3 id=&quot;serverless-the-future-is-bright&quot;&gt;Serverless, the future is bright&lt;/h3&gt;
+&lt;p&gt;Serverless has reached a point of maturity where we can use it as a serious contender. The ecosystem is still sparse, 
+but the &lt;a href=&quot;http://serverless.com&quot;&gt;Serverless&lt;/a&gt; startup is working to fix that.&lt;/p&gt;
+</description>
+        <pubDate>Mon, 29 Feb 2016 18:03:52 -0800</pubDate>
+        <link>http://blog.boushley.net/2016/02/29/serverless-architecture-update/</link>
+        <guid isPermaLink="true">http://blog.boushley.net/2016/02/29/serverless-architecture-update/</guid>
+        
+        
+        <category>js</category>
+        
+        <category>AWS</category>
+        
+        <category>Serverless</category>
+        
+      </item>
     
       <item>
         <title>HTML5 Style Deep Linking on S3</title>
@@ -33,9 +72,9 @@ serve our Single Page App as the error page?&lt;/p&gt;
 
 &lt;p&gt;I hopped into the S3 console and changed the configuration on my bucket. When enabling website hosting for an S3 bucket 
 you can also set the “Index Document” and “Error Document”. So on my bucket I configured both documents to be 
-&lt;code&gt;index.html&lt;/code&gt;. The result is that my page loads whenever you go to a non-existent route.&lt;/p&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;index.html&lt;/code&gt;. The result is that my page loads whenever you go to a non-existent route.&lt;/p&gt;
 
-&lt;p&gt;This means that when you arrive at &lt;code&gt;/&lt;/code&gt; initially you load the application as expected. As you navigate around the URL 
+&lt;p&gt;This means that when you arrive at &lt;code class=&quot;highlighter-rouge&quot;&gt;/&lt;/code&gt; initially you load the application as expected. As you navigate around the URL 
 updates. If you hit refresh you are served a 404, but the application loads recognizes the URL and renders the page you 
 expect. The only way you can tell it’s a 404 is if you open up your tools and look at the Status Code.&lt;/p&gt;
 
@@ -62,9 +101,9 @@ needing to maintain your own servers.&lt;/p&gt;
         
         <category>js</category>
         
-        <category>aws</category>
+        <category>AWS</category>
         
-        <category>serverless</category>
+        <category>Serverless</category>
         
       </item>
     
@@ -116,14 +155,14 @@ the request.&lt;/p&gt;
 visiting the URL that the S3 console gives you for your page.&lt;/p&gt;
 
 &lt;p&gt;Next we need to setup our API Gateway endpoints. To get these to be easily grouped on our CloudFront distribution we 
-should prefix all of these routes with a common path, like &lt;code&gt;/api/&lt;/code&gt;. JAWS makes it easy to create API Gateway endpoints 
+should prefix all of these routes with a common path, like &lt;code class=&quot;highlighter-rouge&quot;&gt;/api/&lt;/code&gt;. JAWS makes it easy to create API Gateway endpoints 
 that are backed by Lambda services. Get one of those setup and test it with something like curl to be sure it works as
 expected.&lt;/p&gt;
 
 &lt;p&gt;Finally we bring it all together with a CloudFront distribution with two origins. The first (default) origin is our S3
 bucket, then we add our API Gateway endpoint as our second origin. The base path that we set on the API gateway origin
 is best to set to your API Gateway stage. Finally we can setup a Cache Behavior that routes traffic for a specific set
-of routes, like &lt;code&gt;/api/*&lt;/code&gt; (the prefix we used when setting up our API Gateway endpoint) to our API Gateway origin.&lt;/p&gt;
+of routes, like &lt;code class=&quot;highlighter-rouge&quot;&gt;/api/*&lt;/code&gt; (the prefix we used when setting up our API Gateway endpoint) to our API Gateway origin.&lt;/p&gt;
 
 &lt;h2 id=&quot;manual-configuration-can-we-automate-that&quot;&gt;Manual configuration! Can we automate that?&lt;/h2&gt;
 &lt;p&gt;Indeed, we can make this part of our JAWS resources CloudFormation template. Luckily JAWS is extensible using
@@ -138,8 +177,8 @@ can get confusing, so keep an eye on that.&lt;/p&gt;
 
 &lt;p&gt;There are also some missing features in API Gateway. One of these missing features is the ability to &lt;a href=&quot;https://forums.aws.amazon.com/thread.jspa?messageID=675607&quot;&gt;dynamically set 
 headers on the HTTP response&lt;/a&gt; based on values in the Lambda
-event response. This is necessary for setting cookies or performing a HTTP redirect, which require setting the &lt;code&gt;Cookie&lt;/code&gt;
-and &lt;code&gt;Location&lt;/code&gt; header respectively. Another missing feature is the ability to set the HTTP Status Code based on something
+event response. This is necessary for setting cookies or performing a HTTP redirect, which require setting the &lt;code class=&quot;highlighter-rouge&quot;&gt;Cookie&lt;/code&gt;
+and &lt;code class=&quot;highlighter-rouge&quot;&gt;Location&lt;/code&gt; header respectively. Another missing feature is the ability to set the HTTP Status Code based on something
 in the Lambda event response. This makes something like OAuth a pain to implement, however it’s definitely doable.&lt;/p&gt;
 
 &lt;p&gt;I’ve heard of a few other drawbacks, but none of them are show stoppers. There are bumps on this road, but it’s a pretty 
@@ -160,9 +199,9 @@ without getting any more complex.&lt;/p&gt;
         
         <category>js</category>
         
-        <category>jaws</category>
+        <category>JAWS</category>
         
-        <category>aws</category>
+        <category>AWS</category>
         
       </item>
     
@@ -230,9 +269,9 @@ continue to handle your traffic as your site grows.&lt;/p&gt;
         
         <category>js</category>
         
-        <category>jaws</category>
+        <category>JAWS</category>
         
-        <category>aws</category>
+        <category>AWS</category>
         
       </item>
     
@@ -242,25 +281,25 @@ continue to handle your traffic as your site grows.&lt;/p&gt;
 
 &lt;p&gt;ECMAScript 6 (ES6) added the ability to specify default parameters to functions, but we’ve
 got a lot of code out there that already handles defaults, heck we even have a colloquially
-named &lt;em&gt;default operator&lt;/em&gt; &lt;code&gt;||&lt;/code&gt;;&lt;/p&gt;
+named &lt;em&gt;default operator&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;||&lt;/code&gt;;&lt;/p&gt;
 
 &lt;p&gt;Here’s the way I used to handle default parameters.&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
     &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;This works in most cases but gets problematic when &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Glossary/Falsy&quot;&gt;falsy values&lt;/a&gt;
-are acceptable inputs. Then you need to explicitly check for &lt;code&gt;undefined&lt;/code&gt; or check &lt;code&gt;arguments.length&lt;/code&gt;;&lt;/p&gt;
+are acceptable inputs. Then you need to explicitly check for &lt;code class=&quot;highlighter-rouge&quot;&gt;undefined&lt;/code&gt; or check &lt;code class=&quot;highlighter-rouge&quot;&gt;arguments.length&lt;/code&gt;;&lt;/p&gt;
 
 &lt;h2 id=&quot;things-get-better&quot;&gt;Things Get Better&lt;/h2&gt;
 
 &lt;p&gt;The new ES6 syntax looks like this:&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;Much cleaner, especially as you add more parameters with their own defaults. However this just left me wondering about
 how far you could take these default parameters. Are they bound when the function is defined, or when it is called? What
@@ -275,26 +314,26 @@ exactly.&lt;/p&gt;
 
 &lt;p&gt;If we drop our simple function into the REPL we get this as the output:&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;arguments&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;arguments&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;undefined&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;arguments&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;arguments&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;arguments&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;undefined&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;arguments&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
 
     &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;That looks promising. This answered my first question, parameters are bound when the function is called, not when it is
 defined. That’s super handy. This also handles falsy values porperly, good stuff.&lt;/p&gt;
 
-&lt;p&gt;The way &lt;code&gt;5&lt;/code&gt; is just sitting in there made me think we might be able to do a fairly complex expression here. So I tried
+&lt;p&gt;The way &lt;code class=&quot;highlighter-rouge&quot;&gt;5&lt;/code&gt; is just sitting in there made me think we might be able to do a fairly complex expression here. So I tried
 popping a function call or variable assignment in there. Things worked great. You  can call a function, you can set the
 parameter to another variable, heck you can set a later parameter to the value of an earlier parameter:&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;h3 id=&quot;side-note&quot;&gt;Side Note&lt;/h3&gt;
 &lt;blockquote&gt;
-  &lt;p&gt;Babel has an additional mode called &lt;code&gt;High Compliancy&lt;/code&gt;. This adds some extra noise to the above example to handle 
+  &lt;p&gt;Babel has an additional mode called &lt;code class=&quot;highlighter-rouge&quot;&gt;High Compliancy&lt;/code&gt;. This adds some extra noise to the above example to handle 
 temporal dead zones. Luckily we don’t have to worry about that with these examples.&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -314,13 +353,13 @@ Babel got it right. Default parameters are late binding and allow for basically 
         <guid isPermaLink="true">http://blog.boushley.net/2015/09/19/ecmascript-6-default-parameters/</guid>
         
         
-        <category>es6</category>
+        <category>ES6</category>
         
         <category>js</category>
         
-        <category>experiments</category>
+        <category>Experiments</category>
         
-        <category>spec diving</category>
+        <category>Spec Diving</category>
         
       </item>
     
@@ -330,7 +369,7 @@ Babel got it right. Default parameters are late binding and allow for basically 
 
 &lt;p&gt;What happens with nesting and visibility?&lt;/p&gt;
 
-&lt;p&gt;By default when you make an element &lt;code&gt;visible: hidden;&lt;/code&gt; it becomes &lt;em&gt;hidden&lt;/em&gt; along with all of
+&lt;p&gt;By default when you make an element &lt;code class=&quot;highlighter-rouge&quot;&gt;visible: hidden;&lt;/code&gt; it becomes &lt;em&gt;hidden&lt;/em&gt; along with all of
 the elements children. It doesn’t have to stop there though:&lt;/p&gt;
 
 &lt;h3 id=&quot;hidden-parent-and-visible-child&quot;&gt;Hidden Parent and Visible Child&lt;/h3&gt;
@@ -347,26 +386,26 @@ added):&lt;/p&gt;
 
 &lt;p&gt;So, lets see the basic setup:&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;hidden-parent&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;visible-child&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;hidden-parent&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;visible-child&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
   &lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-css&quot; data-lang=&quot;css&quot;&gt;&lt;span class=&quot;nc&quot;&gt;.hidden-parent&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;visibility&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;hidden&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-css&quot; data-lang=&quot;css&quot;&gt;&lt;span class=&quot;nc&quot;&gt;.hidden-parent&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;visibility&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;hidden&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 
-  &lt;span class=&quot;k&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;red&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;200px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;200px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;red&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;200px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;200px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 
 &lt;span class=&quot;nc&quot;&gt;.visible-child&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;visibility&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;initial&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;visibility&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;initial&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 
-  &lt;span class=&quot;k&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;blue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+  &lt;span class=&quot;nl&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;blue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;You can see the &lt;em&gt;glorious&lt;/em&gt; result here:&lt;/p&gt;
 
@@ -379,28 +418,28 @@ I use all that often, but it is a nice tool to have around.&lt;/p&gt;
 &lt;h3 id=&quot;hidden-parent-and-pseudo-elements&quot;&gt;Hidden Parent and Pseudo Elements&lt;/h3&gt;
 
 &lt;p&gt;Alright, so what happens if we want to use a &lt;a href=&quot;http://www.w3.org/TR/2011/REC-CSS2-20110607/generate.html#before-after-content&quot;&gt;pseudo element&lt;/a&gt;
-like &lt;code&gt;::before&lt;/code&gt;.&lt;/p&gt;
+like &lt;code class=&quot;highlighter-rouge&quot;&gt;::before&lt;/code&gt;.&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;hidden-parent&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;hidden-parent&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-css&quot; data-lang=&quot;css&quot;&gt;&lt;span class=&quot;nc&quot;&gt;.hidden-parent&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;visibility&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;hidden&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-css&quot; data-lang=&quot;css&quot;&gt;&lt;span class=&quot;nc&quot;&gt;.hidden-parent&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;visibility&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;hidden&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 
-  &lt;span class=&quot;k&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;red&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;200px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;200px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;red&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;200px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;200px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 
-&lt;span class=&quot;nc&quot;&gt;.hidden-parent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;:before&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;visibility&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;visible&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;nc&quot;&gt;.hidden-parent&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;::before&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;visibility&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;visible&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 
-  &lt;span class=&quot;k&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot; &amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;display&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;block&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;blue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+  &lt;span class=&quot;nl&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&quot; &quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;display&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;block&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;blue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;And again, the result:&lt;/p&gt;
 
@@ -414,7 +453,7 @@ screenshot, but it’s just blank. This holds for all IE versions I’ve been ab
 
 &lt;h3 id=&quot;who-cares&quot;&gt;Who Cares?&lt;/h3&gt;
 &lt;p&gt;This may all seem really theoretical, but I discovered this as I was trying to build out an error display. There was an
-error icon, the before pseudo element, and the error contents, the content of the &lt;code&gt;.hidden-parent&lt;/code&gt;. The ask from the
+error icon, the before pseudo element, and the error contents, the content of the &lt;code class=&quot;highlighter-rouge&quot;&gt;.hidden-parent&lt;/code&gt;. The ask from the
 designers was to have the messages hidden until certain interactions happened. I was able to get this working using just
 html and css without the need for an additional element for the error display.&lt;/p&gt;
 
@@ -429,9 +468,9 @@ html and css without the need for an additional element for the error display.&l
         <guid isPermaLink="true">http://blog.boushley.net/2015/09/18/nested-visibility-pseudo-elements-and-ie/</guid>
         
         
-        <category>ie</category>
+        <category>IE</category>
         
-        <category>css</category>
+        <category>CSS</category>
         
       </item>
     
@@ -449,7 +488,7 @@ started digging in.&lt;/p&gt;
 just didn’t test in even a modern browser. The down side is that now I have to figure out why it isn’t working in this
 specific case. Eventually got dev console output in IE 11 and saw this:&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;
 SEC7114: A download in this page was blocked by Tracking Protection.  https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
 &lt;/code&gt;&lt;/p&gt;
 
@@ -508,9 +547,9 @@ It’s disappointing that IE has this feature so easily accessible that really d
         <guid isPermaLink="true">http://blog.boushley.net/2014/08/07/internet-explorer-tracking-protection-and-shared-cdns/</guid>
         
         
-        <category>ie</category>
+        <category>IE</category>
         
-        <category>shared cdn</category>
+        <category>Shared CDN</category>
         
       </item>
     
@@ -523,12 +562,12 @@ script that automated the steps of creating a file, running the build and saving
 
 &lt;p&gt;We ran into some odd behavior though after running our build and then asking for further input from stdin. After digging 
 into the problem we eventually discovered that it only happened after running one of our tasks that uses 
-&lt;a href=&quot;https://github.com/sindresorhus/grunt-shell&quot;&gt;grunt-shell&lt;/a&gt; although we discovered that setting the &lt;code&gt;stdin&lt;/code&gt; option to 
-&lt;code&gt;false&lt;/code&gt; for the command configuration solved our problem.&lt;/p&gt;
+&lt;a href=&quot;https://github.com/sindresorhus/grunt-shell&quot;&gt;grunt-shell&lt;/a&gt; although we discovered that setting the &lt;code class=&quot;highlighter-rouge&quot;&gt;stdin&lt;/code&gt; option to 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;false&lt;/code&gt; for the command configuration solved our problem.&lt;/p&gt;
 
-&lt;p&gt;From this my initial thought was that grunt-shell must not be cleaning something up when it uses &lt;code&gt;process.stdin&lt;/code&gt;. So I 
+&lt;p&gt;From this my initial thought was that grunt-shell must not be cleaning something up when it uses &lt;code class=&quot;highlighter-rouge&quot;&gt;process.stdin&lt;/code&gt;. So I 
 dug into grunt-shell and discovered that as far as I could tell things were being done correctly. I tried adding some 
-explicit calls to &lt;code&gt;process.stdin.pause();&lt;/code&gt; since there was a call to &lt;code&gt;process.stdin.resume();&lt;/code&gt; but to no avail. Alright, 
+explicit calls to &lt;code class=&quot;highlighter-rouge&quot;&gt;process.stdin.pause();&lt;/code&gt; since there was a call to &lt;code class=&quot;highlighter-rouge&quot;&gt;process.stdin.resume();&lt;/code&gt; but to no avail. Alright, 
 time to boil this down to a simpler repro.&lt;/p&gt;
 
 &lt;h2 id=&quot;boiling-down-to-the-minimal-case&quot;&gt;Boiling Down to the Minimal Case&lt;/h2&gt;
@@ -538,14 +577,14 @@ necessary.&lt;/p&gt;
 
 &lt;p&gt;Alright, to get things started lets check out the node version:&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;
 bash-3.2$ node -v
 v0.10.30
 &lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;So the first step on this path is to show that node itself can work in a situation where stdin is needed just fine:&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;
 bash-3.2$ read -p &quot;Works? (y/N) &quot; yn &amp;amp;&amp;amp; node -e &quot;console.log(&#39;hi&#39;);&quot; &amp;amp;&amp;amp; read -p &quot;Works? (y/N) &quot; yn
 Works? (y/N) y
 hi
@@ -553,9 +592,9 @@ Works? (y/N) y
 &lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;Yup, we were asked if things worked twice and I could respond “yes” both times. Great, so now lets do something similar 
-to what grunt-shell was doing, using &lt;code&gt;process.stdin.resume()&lt;/code&gt;.&lt;/p&gt;
+to what grunt-shell was doing, using &lt;code class=&quot;highlighter-rouge&quot;&gt;process.stdin.resume()&lt;/code&gt;.&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;
 bash-3.2$ read -p &quot;Works? (y/N) &quot; yn &amp;amp;&amp;amp; node -e &quot;process.stdin.resume(); process.stdin.pause();&quot; &amp;amp;&amp;amp; read -p &quot;Works? (y/N) &quot; yn
 Works? (y/N) y
 Works? (y/N) bash: read: read error: 0: Resource temporarily unavailable
@@ -565,7 +604,7 @@ Works? (y/N) bash: read: read error: 0: Resource temporarily unavailable
 (file descriptor 0) is temporarily unavailable. Huh, so are there other things that cause this same behavior with stdin? 
 Maybe if we use the &lt;a href=&quot;http://blog.nodejs.org/2012/12/20/streams2/&quot;&gt;newer stream model&lt;/a&gt;:&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;
 bash-3.2$ read -p &quot;Works? (y/N) &quot; yn &amp;amp;&amp;amp; node -e &quot;process.stdin.on(&#39;readable&#39;, function () {}); process.stdin.removeAllListeners(&#39;readable&#39;);&quot; &amp;amp;&amp;amp; read -p &quot;Works? (y/N) &quot; yn
 Works? (y/N) y
 Works? (y/N) bash: read: read error: 0: Resource temporarily unavailable
@@ -574,7 +613,7 @@ Works? (y/N) bash: read: read error: 0: Resource temporarily unavailable
 &lt;p&gt;Dang, still leaving stdin in a bad state. Now it’s entirely possible I’m just not cleaning something up properly with 
 these so I tried to narrow it down a bit further. Let’s try something that shouldn’t really be intrusive at all:&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;
 bash-3.2$ read -p &quot;Works? (y/N) &quot; yn &amp;amp;&amp;amp; node -e &quot;process.stdin.setEncoding(&#39;utf8&#39;)&quot; &amp;amp;&amp;amp; read -p &quot;Works? (y/N) &quot; yn
 Works? (y/N) y
 Works? (y/N) bash: read: read error: 0: Resource temporarily unavailable
@@ -582,19 +621,19 @@ Works? (y/N) bash: read: read error: 0: Resource temporarily unavailable
 
 &lt;p&gt;Ug! Still busted. Interesting. In doing some searching I discovered
 &lt;a href=&quot;https://github.com/joyent/node/issues/7481&quot;&gt;an issue&lt;/a&gt; that some people were seeing odd behaviors from just referencing 
-&lt;code&gt;process.stdin&lt;/code&gt;. I thought “There’s no way just referencing stdin could cause this problem.”, but hey it’s worth a try:&lt;/p&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;process.stdin&lt;/code&gt;. I thought “There’s no way just referencing stdin could cause this problem.”, but hey it’s worth a try:&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;
 bash-3.2$ read -p &quot;Works? (y/N) &quot; yn &amp;amp;&amp;amp; node -e &quot;process.stdin;&quot; &amp;amp;&amp;amp; read -p &quot;Works? (y/N) &quot; yn
 Works? (y/N)
 Works? (y/N) bash: read: read error: 0: Resource temporarily unavailable
 &lt;/code&gt;&lt;/p&gt;
 
-&lt;p&gt;For reals!? Just referencing &lt;code&gt;process.stdin&lt;/code&gt; puts node into a state where stdin won’t be released until things are well 
+&lt;p&gt;For reals!? Just referencing &lt;code class=&quot;highlighter-rouge&quot;&gt;process.stdin&lt;/code&gt; puts node into a state where stdin won’t be released until things are well 
 and done.&lt;/p&gt;
 
 &lt;h2 id=&quot;nodejs-is-hanging-onto-stdin&quot;&gt;Node.js Is Hanging Onto stdin&lt;/h2&gt;
-&lt;p&gt;Alright, so if you touch &lt;code&gt;process.stdin&lt;/code&gt; in any way node.js will hang onto that file descriptor until the process is 
+&lt;p&gt;Alright, so if you touch &lt;code class=&quot;highlighter-rouge&quot;&gt;process.stdin&lt;/code&gt; in any way node.js will hang onto that file descriptor until the process is 
 completely finished. I can’t seem to find a way to get node to clean things up once stdin has been used. I hope there’s 
 a workaround, but I haven’t found it, if you have a workaround leave a comment. I also did some searching through the
 open issues on the node repository, and couldn’t find anything quite like this, so I opened a
@@ -634,9 +673,9 @@ want more instruction on getting up and running.&lt;/p&gt;
         <guid isPermaLink="true">http://blog.boushley.net/2014/07/26/elasticsearch-postman-queries/</guid>
         
         
-        <category>elasticsearch</category>
+        <category>ElasticSearch</category>
         
-        <category>postman</category>
+        <category>Postman</category>
         
       </item>
     
@@ -646,9 +685,10 @@ want more instruction on getting up and running.&lt;/p&gt;
 &lt;a href=&quot;http://www.w3.org/TR/CSS2/visufx.html#visibility&quot;&gt;CSS spec for visibility&lt;/a&gt; allows for nested elements to declare 
 themselves visible.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;The generated box is invisible (fully transparent, nothing is drawn), but still affects layout. Furthermore,
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;The generated box is invisible (fully transparent, nothing is drawn), but still affects layout. Furthermore,
 descendants of the element will be visible if they have &#39;visibility: visible&#39;.
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;This came in handy, allowing me to make a container hidden until a specific element was focused, but then allowing me to 
 make an icon within that container visible. As I was cleaning this up further I decided the icon really didn’t have any 
@@ -671,8 +711,8 @@ be
 &lt;a href=&quot;http://stackoverflow.com/questions/17530947/ie10-visibilityvisible-on-before-pseudo-element-of-visibilityhidden-eleme&quot;&gt;some other people&lt;/a&gt;
 that have run into this issue as well, but apparently not too many.&lt;/p&gt;
 
-&lt;p&gt;In the end I was able to work around this by making all of the children of my parent container &lt;code&gt;visibility: hidden;&lt;/code&gt; and 
-then specifically making the pseudo element visible. This didn’t clutter my markup since I was working on a &lt;code&gt;&amp;lt;ul&amp;gt;&lt;/code&gt; 
+&lt;p&gt;In the end I was able to work around this by making all of the children of my parent container &lt;code class=&quot;highlighter-rouge&quot;&gt;visibility: hidden;&lt;/code&gt; and 
+then specifically making the pseudo element visible. This didn’t clutter my markup since I was working on a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;ul&amp;gt;&lt;/code&gt; 
 element already. So in the end I had a reasonable workaround with hiding all the children, but that wouldn’t work in the 
 scenario my jsfiddle outlines, since the text that is a direct child of the container element would not be hidden.&lt;/p&gt;
 
@@ -685,97 +725,9 @@ scenario my jsfiddle outlines, since the text that is a direct child of the cont
         
         <category>css</category>
         
-        <category>ie</category>
+        <category>IE</category>
         
         <category>bugs</category>
-        
-      </item>
-    
-      <item>
-        <title>Static Site Generators in a Single Page Applications World Part 2</title>
-        <description>&lt;p&gt;In &lt;a href=&quot;http://blog.boushley.net/blog/2014/06/18/static-site-generators-in-a-single-page-applications-world/&quot;&gt;part one&lt;/a&gt; of
-this series I talked about the benefits of Usemin and Uncss, but getting things rolling took some work. Most of the
-problems we were having came from interactions between the plugins we were using, and not necessarily as flaws with the
-tools generally.&lt;/p&gt;
-
-&lt;h2 id=&quot;usemin&quot;&gt;Usemin&lt;/h2&gt;
-&lt;p&gt;The first problem I ran into wasn’t a blocker, but it slowed down our build significantly. Usemin duplicated work when 
-it found multiple blocks defining the same destination file. For most applications this wasn’t a problem. Many 
-applications are single page applications today so this wouldn’t affect them. Many others use a single dynamic page 
-to serve up their pages, again lowering the impact of this issue. However with a static site generator it’s possible to 
-end up with many html files that define the same script include block (in our case we were including this block via a 
-template partial on essentially every page). Luckily a &lt;a href=&quot;https://github.com/yeoman/grunt-usemin/issues/289&quot;&gt;bug&lt;/a&gt; already
-existed for this and a &lt;a href=&quot;https://github.com/yeoman/grunt-usemin/pull/324&quot;&gt;pull request&lt;/a&gt; was even already open to resolve
-it. After reviewing the PR though I decided to create my own &lt;a href=&quot;https://github.com/yeoman/grunt-usemin/pull/382&quot;&gt;PR&lt;/a&gt;
-solving the problem in a slightly different way. The solution was to do some duplication checking to ensure we only 
-added each unique destination file once. My PR landed and the fix is now part of usemin 2.3.0.&lt;/p&gt;
-
-&lt;h2 id=&quot;uncss--usemin&quot;&gt;Uncss + Usemin&lt;/h2&gt;
-&lt;p&gt;The harder problem to figure out was due to an interaction between Uncss and Usemin. Uncss tries to parse the 
-stylesheets it should process off of your page, but because I wanted this to run before usemin ran I needed to supply my 
-own stylesheet via the &lt;code&gt;stylesheets&lt;/code&gt; option. I had something like this:&lt;/p&gt;
-
-&lt;h4 id=&quot;broken-code-functioning-code-below&quot;&gt;Broken Code, functioning code below&lt;/h4&gt;
-&lt;p&gt;&lt;code&gt;js
-grunt.initConfig({
-    uncss: {
-        options: {
-            stylesheets: [&#39;site.css&#39;],
-            htmlroot: &#39;build/public&#39;,
-            csspath: &#39;css/&#39;
-        },
-        file: [{ html: [&#39;**/*.html&#39;] }]
-    }
-    // Usemin declaration left out for brevity
-});
-&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;The problem I was having was that the path to my css files was always different based on where the html file being processed
-was located. I assumed that the &lt;code&gt;stylesheets&lt;/code&gt; option would be resolved relative to the &lt;code&gt;htmlroot&lt;/code&gt; option. For some 
-I kept banging my head against the &lt;code&gt;htmlroot&lt;/code&gt; option and &lt;code&gt;csspath&lt;/code&gt; option trying to figure out how I could make this 
-work when the html files were in different directories. I knew that &lt;code&gt;stylesheets&lt;/code&gt; was being evaluated from where the 
-html file was located, but since &lt;code&gt;csspath&lt;/code&gt; was static the relative path was different per file… And that’s when it hit 
-me, I was making this way harder than it was. All I had to do was make my reference in &lt;code&gt;stylesheets&lt;/code&gt; absolute! So I 
-changed to something like this:&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;js
-grunt.initConfig({
-    uncss: {
-        options: {
-            stylesheets: [&#39;/css/site.css&#39;],
-            htmlroot: &#39;build/public&#39;,
-        },
-        file: [{ html: [&#39;**/*.html&#39;] }]
-    }
-    // Usemin declaration left out for brevity
-});
-&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;With an absolute path to my stylesheet it was now evaluated with &lt;code&gt;htmlroot&lt;/code&gt; as the base and everything was working.&lt;/p&gt;
-
-&lt;h2 id=&quot;filerev&quot;&gt;Filerev&lt;/h2&gt;
-&lt;p&gt;After working through those problems I wasn’t excited to get the last piece of the build working, but the benefits 
-weren’t something I could pass up. So I started on setting up &lt;a href=&quot;https://github.com/yeoman/grunt-filerev&quot;&gt;filerev&lt;/a&gt;. 
-Filerev is a great plugin that does resource versioning, you point it at a folder and it will update each of the files 
-that match the given patterns to contain a part of a hash for the files contents. This makes the files unique meaning 
-that they can be cached forever. I was estatic to find that when I dropped filerev into the build with usemin it just 
-worked. I’m pretty sure I spent more time ensuring that it was working how I expected that it actually took to get 
-setup.&lt;/p&gt;
-
-&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;There are some great tools for the node build pipeline. They may not fit your usecase exactly to start, but they seem to 
-cover most usecases out of the box while being flexible enough to fit unexpected needs. Until next time.&lt;/p&gt;
-</description>
-        <pubDate>Fri, 27 Jun 2014 20:14:16 -0700</pubDate>
-        <link>http://blog.boushley.net/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2/</link>
-        <guid isPermaLink="true">http://blog.boushley.net/2014/06/27/static-site-generators-in-a-single-page-applications-world-part-2/</guid>
-        
-        
-        <category>js</category>
-        
-        <category>node</category>
-        
-        <category>metalsmith</category>
         
       </item>
     

@@ -91,10 +91,10 @@ added each unique destination file once. My PR landed and the fix is now part of
 <h2 id="uncss--usemin">Uncss + Usemin</h2>
 <p>The harder problem to figure out was due to an interaction between Uncss and Usemin. Uncss tries to parse the 
 stylesheets it should process off of your page, but because I wanted this to run before usemin ran I needed to supply my 
-own stylesheet via the <code>stylesheets</code> option. I had something like this:</p>
+own stylesheet via the <code class="highlighter-rouge">stylesheets</code> option. I had something like this:</p>
 
 <h4 id="broken-code-functioning-code-below">Broken Code, functioning code below</h4>
-<p><code>js
+<p><code class="highlighter-rouge">js
 grunt.initConfig({
     uncss: {
         options: {
@@ -109,14 +109,14 @@ grunt.initConfig({
 </code></p>
 
 <p>The problem I was having was that the path to my css files was always different based on where the html file being processed
-was located. I assumed that the <code>stylesheets</code> option would be resolved relative to the <code>htmlroot</code> option. For some 
-I kept banging my head against the <code>htmlroot</code> option and <code>csspath</code> option trying to figure out how I could make this 
-work when the html files were in different directories. I knew that <code>stylesheets</code> was being evaluated from where the 
-html file was located, but since <code>csspath</code> was static the relative path was different per file… And that’s when it hit 
-me, I was making this way harder than it was. All I had to do was make my reference in <code>stylesheets</code> absolute! So I 
+was located. I assumed that the <code class="highlighter-rouge">stylesheets</code> option would be resolved relative to the <code class="highlighter-rouge">htmlroot</code> option. For some 
+I kept banging my head against the <code class="highlighter-rouge">htmlroot</code> option and <code class="highlighter-rouge">csspath</code> option trying to figure out how I could make this 
+work when the html files were in different directories. I knew that <code class="highlighter-rouge">stylesheets</code> was being evaluated from where the 
+html file was located, but since <code class="highlighter-rouge">csspath</code> was static the relative path was different per file… And that’s when it hit 
+me, I was making this way harder than it was. All I had to do was make my reference in <code class="highlighter-rouge">stylesheets</code> absolute! So I 
 changed to something like this:</p>
 
-<p><code>js
+<p><code class="highlighter-rouge">js
 grunt.initConfig({
     uncss: {
         options: {
@@ -129,7 +129,7 @@ grunt.initConfig({
 });
 </code></p>
 
-<p>With an absolute path to my stylesheet it was now evaluated with <code>htmlroot</code> as the base and everything was working.</p>
+<p>With an absolute path to my stylesheet it was now evaluated with <code class="highlighter-rouge">htmlroot</code> as the base and everything was working.</p>
 
 <h2 id="filerev">Filerev</h2>
 <p>After working through those problems I wasn’t excited to get the last piece of the build working, but the benefits 

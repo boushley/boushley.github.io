@@ -75,25 +75,25 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <p>ECMAScript 6 (ES6) added the ability to specify default parameters to functions, but we’ve
 got a lot of code out there that already handles defaults, heck we even have a colloquially
-named <em>default operator</em> <code>||</code>;</p>
+named <em>default operator</em> <code class="highlighter-rouge">||</code>;</p>
 
 <p>Here’s the way I used to handle default parameters.</p>
 
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">foo</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">foo</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">a</span> <span class="o">=</span> <span class="nx">a</span> <span class="o">||</span> <span class="mi">5</span><span class="p">;</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span>
-<span class="p">}</span></code></pre></div>
+<span class="p">}</span></code></pre></figure>
 
 <p>This works in most cases but gets problematic when <a href="https://developer.mozilla.org/en-US/docs/Glossary/Falsy">falsy values</a>
-are acceptable inputs. Then you need to explicitly check for <code>undefined</code> or check <code>arguments.length</code>;</p>
+are acceptable inputs. Then you need to explicitly check for <code class="highlighter-rouge">undefined</code> or check <code class="highlighter-rouge">arguments.length</code>;</p>
 
 <h2 id="things-get-better">Things Get Better</h2>
 
 <p>The new ES6 syntax looks like this:</p>
 
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">foo</span><span class="p">(</span><span class="nx">a</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="p">{</span>
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">foo</span><span class="p">(</span><span class="nx">a</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span>
-<span class="p">}</span></code></pre></div>
+<span class="p">}</span></code></pre></figure>
 
 <p>Much cleaner, especially as you add more parameters with their own defaults. However this just left me wondering about
 how far you could take these default parameters. Are they bound when the function is defined, or when it is called? What
@@ -108,26 +108,26 @@ exactly.</p>
 
 <p>If we drop our simple function into the REPL we get this as the output:</p>
 
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">foo</span><span class="p">()</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">||</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">===</span> <span class="kc">undefined</span> <span class="o">?</span> <span class="mi">5</span> <span class="o">:</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">foo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">||</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">===</span> <span class="kc">undefined</span> <span class="p">?</span> <span class="mi">5</span> <span class="p">:</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
 
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span>
-<span class="p">}</span></code></pre></div>
+<span class="p">}</span></code></pre></figure>
 
 <p>That looks promising. This answered my first question, parameters are bound when the function is called, not when it is
 defined. That’s super handy. This also handles falsy values porperly, good stuff.</p>
 
-<p>The way <code>5</code> is just sitting in there made me think we might be able to do a fairly complex expression here. So I tried
+<p>The way <code class="highlighter-rouge">5</code> is just sitting in there made me think we might be able to do a fairly complex expression here. So I tried
 popping a function call or variable assignment in there. Things worked great. You  can call a function, you can set the
 parameter to another variable, heck you can set a later parameter to the value of an earlier parameter:</p>
 
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">foo</span><span class="p">(</span><span class="nx">a</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="nx">b</span><span class="o">=</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">foo</span><span class="p">(</span><span class="nx">a</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="nx">b</span><span class="o">=</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">);</span>
-<span class="p">}</span></code></pre></div>
+<span class="p">}</span></code></pre></figure>
 
 <h3 id="side-note">Side Note</h3>
 <blockquote>
-  <p>Babel has an additional mode called <code>High Compliancy</code>. This adds some extra noise to the above example to handle 
+  <p>Babel has an additional mode called <code class="highlighter-rouge">High Compliancy</code>. This adds some extra noise to the above example to handle 
 temporal dead zones. Luckily we don’t have to worry about that with these examples.</p>
 </blockquote>
 

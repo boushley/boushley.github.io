@@ -6,11 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>HTML5 Style Deep Linking on S3</title>
-  <meta name="description" content="The WantIn my last post I talked about running a Single Page Application using JAWS and Amazon S3.One of my first questions after getting that working was ho...">
+  <title>Web Apps Without Servers - Update</title>
+  <meta name="description" content="Serverless UpdateIn my last set of posts back in October I talked about the serverless architecture and how it had so much potential tochange the way we buil...">
 
   <link rel="stylesheet" href="/css/main.css">
-  <link rel="canonical" href="http://blog.boushley.net/2015/10/28/html5-deep-link-on-amazon-s3/">
+  <link rel="canonical" href="http://blog.boushley.net/2016/02/29/serverless-architecture-update/">
   <link rel="alternate" type="application/rss+xml" title="Coping with Code" href="http://blog.boushley.net/feed.xml" />
 </head>
 
@@ -66,54 +66,34 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <div class="post">
 
   <header class="post-header">
-    <h1 class="post-title">HTML5 Style Deep Linking on S3</h1>
-    <p class="post-meta">Oct 28, 2015</p>
+    <h1 class="post-title">Web Apps Without Servers - Update</h1>
+    <p class="post-meta">Feb 29, 2016</p>
   </header>
 
   <article class="post-content">
-    <h2 id="the-want">The Want</h2>
-<p>In my last post I talked about running a Single Page Application using <a href="/2015/10/03/web-apps-without-servers/">JAWS and Amazon S3</a>.
-One of my first questions after getting that working was how I might be able to support deep linking. Specifically how 
-might I be able to handle HTML 5 style deep linking. <a href="http://caniuse.com/#feat=history">History Management (e.g. pushState)</a>
-has pretty good browser support and the new style URLs look much cleaner, so in new projects this is the way I like to 
-go.</p>
+    <h2 id="serverless-update">Serverless Update</h2>
+<p>In my last set of posts back in October I talked about the serverless architecture and how it had so much potential to
+change the way we build web apps. It turns out that potential has only gotten greater!</p>
 
-<h2 id="the-problem">The Problem</h2>
-<p>Usually to support the new style URLs you need a backend server that can dynamically render the same routes that the 
-front end is rendering dynamically. And when we’re hosting a site on S3 we don’t have that capability. We are very much 
-hosting a static site, no frills.</p>
+<h3 id="redirects">Redirects</h3>
+<p>Back in October there was a glaring hole in the API Gateway mapping templates. That was that you couldn’t use a value
+from the Lambda response to fill in a header in your response template. Luckily <a href="https://forums.aws.amazon.com/thread.jspa?threadID=216264">back in December</a>
+support for this was added to API Gateway.</p>
 
-<p>For a while I thought I was stuck. I didn’t see how I could have those nice URLs and still support sharing links or even 
-just browser refreshes. If you refreshed the browser on some page other than the index (like /foo/bar) you get the nasty 
-S3 Key Not Found screen.</p>
+<p>This means that no we can set headers in our responses from AWS Lambda. Suddenly redirects are no longer something you
+have to hack your way around.</p>
 
-<h2 id="the-ray-of-light">The Ray of Light</h2>
-<p>I could at least be sure the S3 Key Not Found / 404 page was a nice page… then it hit me! What if we just tell S3 to 
-serve our Single Page App as the error page?</p>
+<h3 id="cookies">Cookies</h3>
+<p>Setting cookies was a pretty big missing piece too. As it turns out this is enabled by the same functionality that 
+enabled redirects. Since we can now set response headers based on Lambda return values we can now set the <code class="highlighter-rouge">Set-Cookie</code> 
+header enabling cookies!</p>
 
-<p>I hopped into the S3 console and changed the configuration on my bucket. When enabling website hosting for an S3 bucket 
-you can also set the “Index Document” and “Error Document”. So on my bucket I configured both documents to be 
-<code class="highlighter-rouge">index.html</code>. The result is that my page loads whenever you go to a non-existent route.</p>
+<p>There is one drawback here. Unfortunately we cannot set more than one cookie per request. There is no way to send 
+multiples of the same header as would be required for setting multiple cookies.</p>
 
-<p>This means that when you arrive at <code class="highlighter-rouge">/</code> initially you load the application as expected. As you navigate around the URL 
-updates. If you hit refresh you are served a 404, but the application loads recognizes the URL and renders the page you 
-expect. The only way you can tell it’s a 404 is if you open up your tools and look at the Status Code.</p>
-
-<p>This works amazingly well, you can see it in action <a href="http://s3-static-test.s3-website-us-west-2.amazonaws.com/">here</a>.
-(That gif is so mesmerizing, I’ve spent far too long watching that thing loop…)</p>
-
-<h2 id="so-what-about-actual-unknown-pages">So what about actual unknown pages?</h2>
-<p>This presented one other oddity, what about actual 404s? The solution I came up with was to just handle those 404s in 
-the Single Page Application itself. So the same application still loads, but since the application doesn’t <a href="http://s3-static-test.s3-website-us-west-2.amazonaws.com/this/page/is/not/real">recognize the 
-URL</a> it shows an error screen.</p>
-
-<h2 id="serverless">Serverless</h2>
-<p>Running servers is quickly becoming something you should outsource to the experts. There will be oddities along the way 
-(like serving an HTTP 404 when the URL is actually fine), but the wins you get from completely washing your hands of any 
-infrastructure management are huge!</p>
-
-<p>I’m sure this approach will offend some peoples sensibilities, but it’s amazing to see how much can be done without 
-needing to maintain your own servers.</p>
+<h3 id="serverless-the-future-is-bright">Serverless, the future is bright</h3>
+<p>Serverless has reached a point of maturity where we can use it as a serious contender. The ecosystem is still sparse, 
+but the <a href="http://serverless.com">Serverless</a> startup is working to fix that.</p>
 
   </article>
 

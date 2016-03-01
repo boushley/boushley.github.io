@@ -117,14 +117,14 @@ the request.</p>
 visiting the URL that the S3 console gives you for your page.</p>
 
 <p>Next we need to setup our API Gateway endpoints. To get these to be easily grouped on our CloudFront distribution we 
-should prefix all of these routes with a common path, like <code>/api/</code>. JAWS makes it easy to create API Gateway endpoints 
+should prefix all of these routes with a common path, like <code class="highlighter-rouge">/api/</code>. JAWS makes it easy to create API Gateway endpoints 
 that are backed by Lambda services. Get one of those setup and test it with something like curl to be sure it works as
 expected.</p>
 
 <p>Finally we bring it all together with a CloudFront distribution with two origins. The first (default) origin is our S3
 bucket, then we add our API Gateway endpoint as our second origin. The base path that we set on the API gateway origin
 is best to set to your API Gateway stage. Finally we can setup a Cache Behavior that routes traffic for a specific set
-of routes, like <code>/api/*</code> (the prefix we used when setting up our API Gateway endpoint) to our API Gateway origin.</p>
+of routes, like <code class="highlighter-rouge">/api/*</code> (the prefix we used when setting up our API Gateway endpoint) to our API Gateway origin.</p>
 
 <h2 id="manual-configuration-can-we-automate-that">Manual configuration! Can we automate that?</h2>
 <p>Indeed, we can make this part of our JAWS resources CloudFormation template. Luckily JAWS is extensible using
@@ -139,8 +139,8 @@ can get confusing, so keep an eye on that.</p>
 
 <p>There are also some missing features in API Gateway. One of these missing features is the ability to <a href="https://forums.aws.amazon.com/thread.jspa?messageID=675607">dynamically set 
 headers on the HTTP response</a> based on values in the Lambda
-event response. This is necessary for setting cookies or performing a HTTP redirect, which require setting the <code>Cookie</code>
-and <code>Location</code> header respectively. Another missing feature is the ability to set the HTTP Status Code based on something
+event response. This is necessary for setting cookies or performing a HTTP redirect, which require setting the <code class="highlighter-rouge">Cookie</code>
+and <code class="highlighter-rouge">Location</code> header respectively. Another missing feature is the ability to set the HTTP Status Code based on something
 in the Lambda event response. This makes something like OAuth a pain to implement, however it’s definitely doable.</p>
 
 <p>I’ve heard of a few other drawbacks, but none of them are show stoppers. There are bumps on this road, but it’s a pretty 
